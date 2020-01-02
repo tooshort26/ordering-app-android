@@ -1,0 +1,31 @@
+<resources>
+    <string name="app_name">Mai Place</string>
+    <string name="baseUrl">http://192.168.1.10:3030</string>
+
+    <string name="facebook_app_id">803029296878148</string>
+    <string name="fb_login_protocol_scheme">fb803029296878148</string>
+
+    <string name="cart">Cart</string>
+    <string name="account">Account Setting</string>
+    <string name="drawer_open">Open navigation drawer</string>
+    <string name="drawer_close">Close navigation drawer</string>
+
+
+    <string name="login_message">Welcome to Mai-Place</string>
+
+    <string name="register_message">For you to start using this application you must fill those fields</string>
+    <string name="create_an_account">Create an account</string>
+    <string name="err_firstname">Check your firstname</string>
+    <string name="err_middlename">Check your middlename</string>
+    <string name="err_lastname">Check your lastname</string>
+    <string name="err_username">Check your username</string>
+    <string name="err_email">Check your email address</string>
+    <string name="err_phone_number">Check your phone number</string>
+    <string name="err_password">Check your password</string>
+    <string name="categories">Categories</string>
+    <string name="view_menu">View Menu</string>
+    <string name="sign_out">Sign out</string>
+    <string name="enter_quantity">Enter quantity</string>
+    <string name="enter_how_many_food_would_you_like_to_order">Enter how many food would you like to order.</string>
+    <string name="submit_order">Submit Order</string>
+</resources>
