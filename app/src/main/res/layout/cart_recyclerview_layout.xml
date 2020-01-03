@@ -4,14 +4,11 @@
     android:layout_height="wrap_content"
     android:orientation="horizontal"
     android:background="#ffffff"
+    android:padding="8dp"
+    android:layout_marginBottom="10dp"
     android:id="@+id/foodLayout">
 
-    <LinearLayout
-        android:id="@+id/foodImage"
-        android:orientation="horizontal"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        >
+
 
         <ImageView
             android:padding="8dp"
@@ -19,21 +16,66 @@
             android:layout_width="100dp"
             android:layout_height="100dp"
             android:contentDescription="@null"
-            android:layout_marginRight="15dp"
             android:src="@drawable/maiplace" />
 
-        <TextView
-            android:layout_gravity="center_vertical"
-            android:id="@+id/cart_food_name"
+
+        <LinearLayout
+            android:layout_toEndOf="@id/cart_food_image"
+            android:gravity="center_vertical"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:fontFamily="@font/product_sans"
-            android:text="SAMPLE"
-            android:textColor="@color/textSecondaryColor"
-            android:textStyle="bold" />
+            android:layout_height="100dp"
+            android:padding="3dp"
+            android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/cart_food_name"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/product_sans"
+                    android:textColor="@color/textSecondaryColor"
+                    android:text="Food name"
+                    android:textSize="17sp"
+                     />
 
 
-    </LinearLayout>
+
+                <TextView
+                    android:id="@+id/cart_food_quantity"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/product_sans"
+                    android:textColor="@color/textSecondaryColor"
+                    android:text="Food quantity"
+                    android:textSize="17sp"
+                     />
+
+                <TextView
+                    android:id="@+id/cart_food_price"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/product_sans"
+                    android:textColor="@color/textSecondaryColor"
+                    android:text="Food price"
+                    android:textSize="17sp"
+                     />
+
+
+
+                <TextView
+                    android:visibility="gone"
+                    android:id="@+id/cart_food_description"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/product_sans"
+                    android:textColor="@color/textSecondaryColor"
+                    android:text="Food Add to cart"
+                    android:textSize="17sp"
+                     />
+
+
+
+
+        </LinearLayout>
 
 
 

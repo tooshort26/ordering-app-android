@@ -1,5 +1,6 @@
 package com.e.maiplaceapp.Adapters;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -35,12 +36,15 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartHolder> {
         return new CartHolder(view);
     }
 
+    @SuppressLint("DefaultLocale")
     @Override
     public void onBindViewHolder(@NonNull CartHolder holder, int position) {
         FoodResponse cartResponse = cartResponseList.get(position);
-        // Get Food Images
         Picasso.get().load( "http://192.168.1.10:8000"+ cartResponse.getImage()).into(holder.foodImageView);
-        holder.txtCartFoodName.setText(String.format("%s - PHP: %s.00", cartResponse.getName(), String.valueOf(cartResponse.getPrice())));
+        holder.txtCartFoodName.setText(String.format("Name : %s", cartResponse.getName()));
+        holder.txtCartFoodQuantity.setText(String.format("Quantity : %d", cartResponse.getQuantity()));
+        holder.txtCartFoodPrice.setText(String.format("Price : %s0", cartResponse.getPrice()));
+//        holder.txtCartCreatedAt.setText(String.format("Add to cart on %s", cartResponse.getCreated_at()));
     }
 
     @Override
@@ -49,7 +53,7 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartHolder> {
     }
 
     class CartHolder extends RecyclerView.ViewHolder {
-         TextView txtCartFoodName;
+         TextView txtCartFoodName, txtCartFoodQuantity, txtCartFoodPrice, txtCartCreatedAt;
          ImageView foodImageView;
 
 
@@ -57,6 +61,9 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartHolder> {
         public CartHolder(@NonNull View itemView) {
             super(itemView);
             txtCartFoodName = itemView.findViewById(R.id.cart_food_name);
+            txtCartCreatedAt = itemView.findViewById(R.id.cart_food_description);
+            txtCartFoodQuantity = itemView.findViewById(R.id.cart_food_quantity);
+            txtCartFoodPrice = itemView.findViewById(R.id.cart_food_price);
             foodImageView = itemView.findViewById(R.id.cart_food_image);
          }
     }

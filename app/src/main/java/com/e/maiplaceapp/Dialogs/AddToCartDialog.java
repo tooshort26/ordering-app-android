@@ -1,4 +1,4 @@
-package com.e.maiplaceapp;
+package com.e.maiplaceapp.Dialogs;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -12,6 +12,8 @@ import android.widget.EditText;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
+
+import com.e.maiplaceapp.R;
 
 public class AddToCartDialog extends DialogFragment {
     private static final String TAG = "AddToCartDialog";

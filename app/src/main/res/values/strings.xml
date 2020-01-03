@@ -28,4 +28,5 @@
     <string name="enter_quantity">Enter quantity</string>
     <string name="enter_how_many_food_would_you_like_to_order">Enter how many food would you like to order.</string>
     <string name="submit_order">Submit Order</string>
+    <string name="please_select_what_options_you_want">Please select what options you want.</string>
 </resources>

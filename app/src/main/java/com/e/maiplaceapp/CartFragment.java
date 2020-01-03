@@ -12,15 +12,20 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.e.maiplaceapp.API.ICart;
+import com.e.maiplaceapp.API.IOrder;
 import com.e.maiplaceapp.Adapters.CartAdapter;
 import com.e.maiplaceapp.Helpers.SharedPref;
 import com.e.maiplaceapp.Models.CustomerCartResponse;
+import com.e.maiplaceapp.Models.CustomerOrderRequest;
+import com.e.maiplaceapp.Models.CustomerOrderResponse;
 import com.e.maiplaceapp.Models.FoodResponse;
 import com.e.maiplaceapp.Services.Service;
+import com.google.gson.Gson;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,7 +40,7 @@ import retrofit2.Retrofit;
  * A simple {@link Fragment} subclass.
  */
 public class CartFragment extends Fragment {
-
+    private static final String TAG = "CartFragment";
     private RecyclerView recyclerView;
     private CartAdapter foodAdapter;
     private LinearLayoutManager layoutManager;
@@ -70,7 +75,35 @@ public class CartFragment extends Fragment {
         this.requestItemsInCart(view);
 
         btnSubmitOrder.setOnClickListener(v -> {
-            ((DashboardActivity)getActivity()).placeOrder(customerCartResponseList);
+            Gson gson = new Gson();
+            int customer_id = SharedPref.getSharedPreferenceInt(getContext(), "customer_id", 0);
+            String orders = gson.toJson(customerCartResponseList);
+            String order_type = SharedPref.getSharedPreferenceString(getContext(),"selected_type", "deliver");
+
+
+            // Is the user active.
+            if(customer_id != 0) {
+                Retrofit retrofit = Service.RetrofitInstance(getContext());
+                IOrder service = retrofit.create(IOrder.class);
+
+                Call<CustomerOrderResponse> customerOrderResponseCall = service.placeOrder(new CustomerOrderRequest(customer_id, orders, order_type));
+                customerOrderResponseCall.enqueue(new Callback<CustomerOrderResponse>() {
+                    @Override
+                    public void onResponse(Call<CustomerOrderResponse> call, Response<CustomerOrderResponse> response) {
+                        if(response.isSuccessful() && response.code() == 200) {
+                            Toast.makeText(getContext(), "Successfully add order.", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<CustomerOrderResponse> call, Throwable t) {
+                        Toast.makeText(getContext(), t.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
+
+
+
         });
     }
 
@@ -93,8 +126,9 @@ public class CartFragment extends Fragment {
 
                     foodAdapter = new CartAdapter(customerCartResponseList, getContext());
                     recyclerView = view.findViewById(R.id.cart_recycler_view);
-                    layoutManager = new LinearLayoutManager(getContext());
-                    recyclerView.setLayoutManager(layoutManager);
+                    recyclerView.setLayoutManager(new GridLayoutManager(getActivity(), 1));
+//                    layoutManager = new LinearLayoutManager(getContext());
+//                    recyclerView.setLayoutManager(layoutManager);
                     recyclerView.setAdapter(foodAdapter);
 
                     for(FoodResponse f : response.body().getFoods()) {

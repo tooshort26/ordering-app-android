@@ -25,6 +25,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.e.maiplaceapp.API.ICart;
 import com.e.maiplaceapp.API.ICategory;
 import com.e.maiplaceapp.Adapters.CategoryAdapter;
+import com.e.maiplaceapp.Dialogs.AddToCartDialog;
+import com.e.maiplaceapp.Dialogs.DeliverTypeDialog;
 import com.e.maiplaceapp.Helpers.SharedPref;
 import com.e.maiplaceapp.Models.Category.CategoryResponse;
 import com.e.maiplaceapp.Models.Category.Food;
@@ -41,7 +43,7 @@ import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 
-public class FoodFragment extends Fragment implements View.OnClickListener, AddToCartDialog.onQuantitySend {
+public class FoodFragment extends Fragment implements View.OnClickListener, AddToCartDialog.onQuantitySend, DeliverTypeDialog.onSelectTypeSend {
     private static final String TAG = "FoodFragment";
 
     RecyclerView recyclerView;
@@ -72,6 +74,16 @@ public class FoodFragment extends Fragment implements View.OnClickListener, AddT
         super.onViewCreated(view, savedInstanceState);
         Retrofit retrofit = Service.RetrofitInstance(getContext());
         ICategory service    = retrofit.create(ICategory.class);
+
+
+        view.findViewById(R.id.btnOptions).setOnClickListener(v -> {
+            // Display the dialog for deliver type.
+            DeliverTypeDialog deliverTypeDialog = new DeliverTypeDialog();
+            deliverTypeDialog.setTargetFragment(FoodFragment.this, 2);
+            deliverTypeDialog.show(getFragmentManager(), "DeliverTypeDialog");
+        });
+
+        view.findViewById(R.id.btnStoreLocator).setOnClickListener(v -> Toast.makeText(getContext(), "Redirect to the active where it's display the store place.", Toast.LENGTH_SHORT).show());
 
         int width = 450;
         int height = 450;
@@ -240,6 +252,7 @@ public class FoodFragment extends Fragment implements View.OnClickListener, AddT
         });*/
     }
 
+    // Method for clicking the Add to Cart
     @Override
     public void onClick(View v) {
         foodId = Integer.parseInt(v.getTag().toString());
@@ -260,6 +273,12 @@ public class FoodFragment extends Fragment implements View.OnClickListener, AddT
         int customerId = SharedPref.getSharedPreferenceInt(getContext(),"customer_id", 0);
         int orderQuantity = Integer.parseInt(quantity);
 
+        progressDialog = new ProgressDialog(getContext());
+        progressDialog.setMessage("Please wait...");
+        progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        progressDialog.show();
+
+
         Call<CustomerAddCartResponse> customerCartResponseCall = service.add(new CustomerAddCartRequest(customerId,foodId, orderQuantity));
 
         customerCartResponseCall.enqueue(new Callback<CustomerAddCartResponse>() {
@@ -268,14 +287,23 @@ public class FoodFragment extends Fragment implements View.OnClickListener, AddT
                 CustomerAddCartResponse addCartResponse = response.body();
                 if  (addCartResponse.getCode() == 201 && response.code() == 200) {
                     Toast.makeText(getContext(), "Successfully add to your cart.", Toast.LENGTH_SHORT).show();
+                    progressDialog.dismiss();
                 }
             }
 
             @Override
             public void onFailure(Call<CustomerAddCartResponse> call, Throwable t) {
                 Toast.makeText(getContext(), t.getMessage(), Toast.LENGTH_SHORT).show();
+                progressDialog.dismiss();
             }
         });
 
+    }
+
+    @Override
+    public void sendType(String type) {
+        // Save the selected Type.
+        SharedPref.setSharedPreferenceString(getContext(),"selected_type", type);
+        Toast.makeText(getContext(), "You select : " + type, Toast.LENGTH_SHORT).show();
     }
 }
