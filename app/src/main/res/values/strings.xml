@@ -22,11 +22,14 @@
     <string name="err_email">Check your email address</string>
     <string name="err_phone_number">Check your phone number</string>
     <string name="err_password">Check your password</string>
-    <string name="categories">Categories</string>
+    <string name="menu">Menu</string>
     <string name="view_menu">View Menu</string>
     <string name="sign_out">Sign out</string>
     <string name="enter_quantity">Enter quantity</string>
     <string name="enter_how_many_food_would_you_like_to_order">Enter how many food would you like to order.</string>
     <string name="submit_order">Submit Order</string>
     <string name="please_select_what_options_you_want">Please select what options you want.</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

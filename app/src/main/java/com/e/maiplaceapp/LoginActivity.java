@@ -22,7 +22,7 @@ import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
 import com.facebook.GraphRequest;
-import com.facebook.GraphResponse;
+import com.facebook.Profile;
 import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
@@ -35,7 +35,6 @@ import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.Task;
 
 import org.json.JSONException;
-import org.json.JSONObject;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -47,6 +46,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     private ProgressDialog progressDialog;
     private LoginButton loginButton;
     private CallbackManager callbackManager;
+    SignInButton signInButton;
 
     // This code is for google sign in.
     private static final int RC_SIGN_IN = 9001;
@@ -77,11 +77,12 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         super.onCreate(savedInstanceState);
         this.userAlreadyLoggedIn();
         setContentView(R.layout.activity_login);
+        findViewById(R.id.activityLogin).requestFocus();
         email = findViewById(R.id.email);
         password = findViewById(R.id.password);
 
         // Set the dimensions of the sign-in button.
-        SignInButton signInButton = findViewById(R.id.sign_in_button);
+        signInButton = findViewById(R.id.sign_in_button);
         signInButton.setSize(SignInButton.SIZE_WIDE);
 
 
@@ -97,14 +98,14 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         // Check for existing Google Sign In account, if the user is already signed in
         // the GoogleSignInAccount will be non-null.
         GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(this);
-        if(account != null) {
-            // User not sign in
-            Toast.makeText(this,"User not sign in using google.", Toast.LENGTH_SHORT).show();
-        }
+
+
+
+
 
         findViewById(R.id.sign_in_button).setOnClickListener(this);
         findViewById(R.id.sign_out_button).setOnClickListener(this);
-        this.setGoogleSignButtonText(signInButton, "Login with google");
+        this.setGoogleSignButtonText(signInButton, "Sign in with google");
 
 
 
@@ -132,6 +133,10 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                 });
 
         this.forDevelopment();
+        this.isUserLoggedInByGoogle(account);
+
+
+        this.isUserLoggedInByFacebook();
 
         findViewById(R.id.btnLogin).setOnClickListener(v -> {
             progressDialog = new ProgressDialog(this);
@@ -183,6 +188,19 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
     }
 
+    private void isUserLoggedInByFacebook() {
+        Profile profile = Profile.getCurrentProfile();
+        if(profile != null) {
+            Toast.makeText(this, "The user logged in by facebook", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void isUserLoggedInByGoogle(GoogleSignInAccount account) {
+        if(account != null) {
+            Toast.makeText(this, "The user logged in by facebook", Toast.LENGTH_SHORT).show();
+        }
+    }
+
     protected void setGoogleSignButtonText(SignInButton signInButton, String buttonText) {
         // Find the TextView that is inside of the SignInButton and set its text
         for (int i = 0; i < signInButton.getChildCount(); i++) {
@@ -212,7 +230,11 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         try {
             GoogleSignInAccount account = completedTask.getResult(ApiException.class);
             // Update the UI
-            Log.d("FROM_GOOGLE_SIGN_IN", account.getDisplayName() + " ," + account.getEmail() + ","  + account.getPhotoUrl());
+            if(account != null) {
+                Toast.makeText(this, "Redirect the user logged in using google", Toast.LENGTH_SHORT).show();
+                Log.d("FROM_GOOGLE_SIGN_IN", account.getDisplayName() + " ," + account.getEmail() + ","  + account.getPhotoUrl());
+            }
+
 
         } catch (ApiException e) {
             e.printStackTrace();
@@ -233,20 +255,18 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
     private void loadUserProfile(AccessToken newAccessToken)
     {
-        GraphRequest request = GraphRequest.newMeRequest(newAccessToken, new GraphRequest.GraphJSONObjectCallback() {
-            @Override
-            public void onCompleted(JSONObject object, GraphResponse response) {
-                try {
-                    String first_name = object.getString("first_name");
-                    String last_name = object.getString("last_name");
-                    String email = object.getString("email");
-                    String id = object.getString("id");
-                    String image_url = "https://graph.facebook.com/" + id + "picture?type=normal";
+        GraphRequest request = GraphRequest.newMeRequest(newAccessToken, (object, response) -> {
+            try {
+//                Log.d("FACEBOOK_PROFILE", object.toString());
+                String first_name = object.getString("first_name");
+                String last_name = object.getString("last_name");
+                String email = object.getString("email");
+                String id = object.getString("id");
+                String image_url = "https://graph.facebook.com/" + id + "picture?type=normal";
 
-                    Log.d("ACCOUNT_INFORMATION", first_name + "," + last_name + "," + email + "," +  id + "," + image_url);
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
+
+            } catch (JSONException e) {
+                e.printStackTrace();
             }
         });
 

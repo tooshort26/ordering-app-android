@@ -9,9 +9,9 @@
             android:title="@string/cart" />
 
         <item
-            android:id="@+id/food_category"
+            android:id="@+id/menu"
             android:icon="@drawable/ic_room_service_black_24dp"
-            android:title="@string/categories" />
+            android:title="@string/menu" />
 
     </group>
 

@@ -1,5 +1,6 @@
 package com.e.maiplaceapp;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
@@ -21,11 +22,9 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import com.e.maiplaceapp.Adapters.CategoryAdapter;
 import com.e.maiplaceapp.Helpers.SharedPref;
 import com.e.maiplaceapp.Models.Category.CategoryResponse;
-import com.e.maiplaceapp.Models.FoodResponse;
 import com.github.nkzawa.socketio.client.IO;
 import com.github.nkzawa.socketio.client.Socket;
 import com.google.android.material.navigation.NavigationView;
-import com.google.gson.Gson;
 
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -42,6 +41,8 @@ public class DashboardActivity extends AppCompatActivity {
     private LinearLayout mainLayout;
 
     private Button btnSignout, btnViewMenu;
+
+    private ProgressDialog progressDialog;
 
 
 //    RecyclerView recyclerView;
@@ -159,14 +160,11 @@ public class DashboardActivity extends AppCompatActivity {
         });
 
 
+
     }
 
-   public void placeOrder(List<FoodResponse> customerOrder)
-   {
-       Gson gson = new Gson();
-       String data = gson.toJson(customerOrder);
-       mSocket.emit("submit-order", data);
-   }
+
+
 
     //TODO Save the categories first in DB then perform search.
    /* private void filter(String text) {
@@ -257,10 +255,12 @@ public class DashboardActivity extends AppCompatActivity {
 //                break;
 
 
-            case R.id.food_category :
-                Intent intent = new Intent(this, DashboardActivity.class);
-                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NO_ANIMATION);
-                startActivity(intent);
+            case R.id.menu:
+                dashboardMainLayout.removeView(mainLayout);
+                frameLayout.setVisibility(View.VISIBLE);
+                FoodFragment foodFragment = new FoodFragment();
+                FragmentManager fragmentManager = getSupportFragmentManager();
+                fragmentManager.beginTransaction().replace(R.id.flContent, foodFragment, "FoodFragment").commit();
                 break;
 
 

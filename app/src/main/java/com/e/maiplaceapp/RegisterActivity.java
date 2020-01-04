@@ -15,6 +15,7 @@ import android.os.Bundle;
 import android.os.Looper;
 import android.provider.Settings;
 import android.util.Log;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -56,6 +57,7 @@ public class RegisterActivity extends AppCompatActivity {
     private EditText lastName;
     private EditText phoneNumber;
     private EditText address;
+    private Button btnRegister;
 
     Geocoder geocoder;
     List<Address> addressList;
@@ -77,9 +79,12 @@ public class RegisterActivity extends AppCompatActivity {
          lastName = findViewById(R.id.lastName);
          phoneNumber = findViewById(R.id.phoneNumber);
          address = findViewById(R.id.address);
-
+         btnRegister = findViewById(R.id.btnRegister);
 
          this.forDevelopmentPurpose();
+
+
+
 
         // Initialize Form Validator
         mAwesomeValidation = new AwesomeValidation(COLORATION);
@@ -101,7 +106,7 @@ public class RegisterActivity extends AppCompatActivity {
 
         getLastLocation();
 
-        findViewById(R.id.btnRegister).setOnClickListener(v -> {
+        btnRegister.setOnClickListener(v -> {
 
 
             if  (mAwesomeValidation.validate()) {
@@ -111,6 +116,7 @@ public class RegisterActivity extends AppCompatActivity {
             }
         });
     }
+
 
     private void forDevelopmentPurpose() {
         password.setText("oop");

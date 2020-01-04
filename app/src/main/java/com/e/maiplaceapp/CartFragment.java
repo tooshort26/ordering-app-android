@@ -12,6 +12,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -75,6 +76,12 @@ public class CartFragment extends Fragment {
         this.requestItemsInCart(view);
 
         btnSubmitOrder.setOnClickListener(v -> {
+
+            progressDialog = new ProgressDialog(getContext());
+            progressDialog.setMessage("Generating Receipt please wait..");
+            progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+            progressDialog.show();
+
             Gson gson = new Gson();
             int customer_id = SharedPref.getSharedPreferenceInt(getContext(), "customer_id", 0);
             String orders = gson.toJson(customerCartResponseList);
@@ -90,14 +97,25 @@ public class CartFragment extends Fragment {
                 customerOrderResponseCall.enqueue(new Callback<CustomerOrderResponse>() {
                     @Override
                     public void onResponse(Call<CustomerOrderResponse> call, Response<CustomerOrderResponse> response) {
-                        if(response.isSuccessful() && response.code() == 200) {
-                            Toast.makeText(getContext(), "Successfully add order.", Toast.LENGTH_SHORT).show();
+                        if(response.isSuccessful() && response.body().getCode() == 201) {
+                            progressDialog.dismiss();
+                            Toast.makeText(getContext(),  response.body().getMessage() + " with no : " + response.body().getOrder_no(), Toast.LENGTH_SHORT).show();
+                            // Replace the current fragment by new Fragment.
+                            Bundle bundle = new Bundle();
+                            ReceiptFragment receiptFragment = new ReceiptFragment();
+                            FragmentTransaction fragmentTransaction = getActivity().getSupportFragmentManager().beginTransaction();
+                            bundle.putString("order_no", response.body().getOrder_no());
+                            fragmentTransaction.replace(R.id.flContent, receiptFragment);
+                            receiptFragment.setArguments(bundle);
+                            fragmentTransaction.commit();
+
                         }
                     }
 
                     @Override
                     public void onFailure(Call<CustomerOrderResponse> call, Throwable t) {
                         Toast.makeText(getContext(), t.getMessage(), Toast.LENGTH_SHORT).show();
+                        progressDialog.dismiss();
                     }
                 });
             }

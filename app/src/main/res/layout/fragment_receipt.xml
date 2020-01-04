@@ -1,0 +1,231 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:padding="15dp"
+    tools:context=".ReceiptFragment">
+
+    <TextView
+        android:id="@+id/orderNo"
+        android:textSize="20sp"
+        android:fontFamily="@font/product_sans"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="" />
+
+    <LinearLayout
+        android:id="@+id/horizontalLine"
+        android:layout_below="@+id/orderNo"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="5dp">
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#9b9b9b"/>
+
+    </LinearLayout>
+
+
+        <TextView
+            android:id="@+id/txtLabelName"
+            android:layout_alignParentStart="true"
+            android:layout_below="@id/horizontalLine"
+            android:text="Name : "
+            android:fontFamily="@font/product_sans"
+            android:textStyle="bold"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+        <TextView
+            android:id="@+id/txtLabelAddress"
+            android:layout_alignParentEnd="true"
+            android:layout_below="@id/horizontalLine"
+            android:text="Address : "
+            android:fontFamily="@font/product_sans"
+            android:textStyle="bold"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+
+    <TextView
+        android:id="@+id/customerName"
+        android:layout_alignParentStart="true"
+        android:layout_below="@id/txtLabelName"
+        android:fontFamily="@font/product_sans"
+        android:layout_marginBottom="8dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+    <TextView
+        android:id="@+id/customerAddress"
+        android:layout_alignParentEnd="true"
+        android:layout_below="@id/txtLabelAddress"
+        android:fontFamily="@font/product_sans"
+        android:layout_marginBottom="8dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+
+<!--    -->
+
+
+    <TextView
+        android:id="@+id/txtLabelPhone"
+        android:layout_alignParentStart="true"
+        android:layout_below="@id/customerName"
+        android:text="Phone : "
+        android:fontFamily="@font/product_sans"
+        android:textStyle="bold"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+    <TextView
+        android:id="@+id/txtLabelOrderDate"
+        android:layout_alignParentEnd="true"
+        android:layout_below="@id/customerAddress"
+        android:text="Order Date : "
+        android:fontFamily="@font/product_sans"
+        android:textStyle="bold"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+
+    <TextView
+        android:id="@+id/customerPhone"
+        android:layout_alignParentStart="true"
+        android:layout_below="@id/txtLabelPhone"
+        android:fontFamily="@font/product_sans"
+        android:layout_marginBottom="20dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+    <TextView
+        android:id="@+id/customerOrderDate"
+        android:layout_alignParentEnd="true"
+        android:layout_below="@id/txtLabelOrderDate"
+        android:fontFamily="@font/product_sans"
+        android:layout_marginBottom="20dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+
+    <TextView
+        android:layout_marginTop="5dp"
+        android:layout_marginBottom="5dp"
+        android:layout_below="@id/customerOrderDate"
+        android:id="@+id/txtLabelOrderSummary"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/product_sans"
+        android:textStyle="bold"
+        android:textSize="18sp"
+        android:text="Order Summary" />
+
+
+    <TableLayout
+        android:layout_below="@id/txtLabelOrderSummary"
+        android:id="@+id/tableview"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="13dp"
+        android:background="@drawable/border"
+        android:stretchColumns="1">
+
+        <TableRow>
+                <TextView
+                    android:text="Items"
+                    android:gravity="center"
+                    android:fontFamily="@font/product_sans"
+                    android:textStyle="bold"
+                    android:padding="3dip" />
+                <TextView
+                    android:text="Quantity"
+                    android:fontFamily="@font/product_sans"
+                    android:textStyle="bold"
+                    android:gravity="center"
+                    android:padding="3dip" />
+
+                <TextView
+                    android:text="Price"
+                    android:fontFamily="@font/product_sans"
+                    android:textStyle="bold"
+                    android:gravity="left"
+                    android:padding="3dip" />
+
+
+                <TextView
+                    android:text="Total"
+                    android:fontFamily="@font/product_sans"
+                    android:textStyle="bold"
+                    android:gravity="right"
+                    android:padding="3dip" />
+
+        </TableRow>
+
+
+
+        <View
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="5dp"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#9b9b9b"/>
+
+
+
+        <TableRow>
+
+            <TextView
+                android:text="Subtotal"
+                android:gravity="left"
+                android:fontFamily="@font/product_sans"
+                android:textStyle="bold"
+                android:padding="3dip" />
+
+            <TextView
+                android:id="@+id/subTotal"
+                android:layout_width="match_parent"
+                android:text=""
+                android:fontFamily="@font/product_sans"
+                android:textStyle="bold"
+                android:gravity="right"
+                android:padding="3dip" />
+        </TableRow>
+
+
+        <View
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="5dp"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#9b9b9b"/>
+
+
+        <TableRow>
+
+            <TextView
+                android:text="Total"
+                android:gravity="left"
+                android:fontFamily="@font/product_sans"
+                android:textStyle="bold"
+                android:padding="3dip" />
+
+            <TextView
+                android:id="@+id/total"
+                android:layout_width="match_parent"
+                android:text=""
+                android:fontFamily="@font/product_sans"
+                android:textStyle="bold"
+                android:gravity="right"
+                android:padding="3dip" />
+        </TableRow>
+
+    </TableLayout>
+
+
+
+</RelativeLayout>
