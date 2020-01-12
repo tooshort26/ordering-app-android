@@ -12,6 +12,15 @@ public class CustomerLoginResponse {
     @Expose
     private int id;
 
+    @SerializedName("firstname")
+    @Expose
+    private String firstname;
+
+    @SerializedName("lastname")
+    @Expose
+    private String lastname;
+
+
     @SerializedName("code")
     @Expose
     private Integer code;
@@ -34,6 +43,22 @@ public class CustomerLoginResponse {
 
     public void setId(Integer id) {
         this.id = id;
+    }
+
+    public String getFirstname() {
+        return firstname;
+    }
+
+    public void setFirstname(String firstname) {
+        this.firstname = firstname;
+    }
+
+    public String getLastname() {
+        return lastname;
+    }
+
+    public void setLastname(String lastname) {
+        this.lastname = lastname;
     }
 
     public void setCode(Integer code) {

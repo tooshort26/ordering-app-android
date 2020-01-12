@@ -3,6 +3,7 @@ package com.e.maiplaceapp;
 
 import android.app.ProgressDialog;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,6 +21,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.e.maiplaceapp.API.ICart;
 import com.e.maiplaceapp.API.IOrder;
 import com.e.maiplaceapp.Adapters.CartAdapter;
+import com.e.maiplaceapp.Dialogs.DeliverTypeDialog;
 import com.e.maiplaceapp.Helpers.SharedPref;
 import com.e.maiplaceapp.Models.CustomerCartResponse;
 import com.e.maiplaceapp.Models.CustomerOrderRequest;
@@ -37,10 +39,7 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 
 
-/**
- * A simple {@link Fragment} subclass.
- */
-public class CartFragment extends Fragment {
+public class CartFragment extends Fragment implements  DeliverTypeDialog.onSelectTypeSend {
     private static final String TAG = "CartFragment";
     private RecyclerView recyclerView;
     private CartAdapter foodAdapter;
@@ -48,7 +47,7 @@ public class CartFragment extends Fragment {
 
     private List<FoodResponse> customerCartResponseList = new ArrayList<>();
 
-    private int totalCost = 0;
+    public static int totalCost;
     private Button btnSubmitOrder;
 
     private ProgressDialog progressDialog;
@@ -72,53 +71,72 @@ public class CartFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         btnSubmitOrder = view.findViewById(R.id.btnPlaceOrder);
+        totalCost = 0;
 
         this.requestItemsInCart(view);
 
+
+        view.findViewById(R.id.btnOptions).setOnClickListener(v -> {
+            // Display the dialog for deliver type.
+            DeliverTypeDialog deliverTypeDialog = new DeliverTypeDialog();
+            deliverTypeDialog.setTargetFragment(CartFragment.this, 2);
+            deliverTypeDialog.show(getFragmentManager(), "DeliverTypeDialog");
+        });
+
+
         btnSubmitOrder.setOnClickListener(v -> {
 
-            progressDialog = new ProgressDialog(getContext());
-            progressDialog.setMessage("Generating Receipt please wait..");
-            progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-            progressDialog.show();
 
-            Gson gson = new Gson();
-            int customer_id = SharedPref.getSharedPreferenceInt(getContext(), "customer_id", 0);
-            String orders = gson.toJson(customerCartResponseList);
-            String order_type = SharedPref.getSharedPreferenceString(getContext(),"selected_type", "deliver");
+            if(customerCartResponseList.size() == 0) {
+                Toast.makeText(getContext(), "Please add an item first.", Toast.LENGTH_SHORT).show();
+            } else {
+
+                progressDialog = new ProgressDialog(getContext());
+                progressDialog.setMessage("Generating Receipt please wait..");
+                progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+                progressDialog.show();
+
+                Gson gson = new Gson();
+                int customer_id = SharedPref.getSharedPreferenceInt(getContext(), "customer_id", 0);
+                String orders = gson.toJson(customerCartResponseList);
+                String order_type = SharedPref.getSharedPreferenceString(getContext(),"selected_type", "deliver");
 
 
-            // Is the user active.
-            if(customer_id != 0) {
-                Retrofit retrofit = Service.RetrofitInstance(getContext());
-                IOrder service = retrofit.create(IOrder.class);
+                // Is the user active.
+                if(customer_id != 0) {
+                    Retrofit retrofit = Service.RetrofitInstance(getContext());
+                    IOrder service = retrofit.create(IOrder.class);
 
-                Call<CustomerOrderResponse> customerOrderResponseCall = service.placeOrder(new CustomerOrderRequest(customer_id, orders, order_type));
-                customerOrderResponseCall.enqueue(new Callback<CustomerOrderResponse>() {
-                    @Override
-                    public void onResponse(Call<CustomerOrderResponse> call, Response<CustomerOrderResponse> response) {
-                        if(response.isSuccessful() && response.body().getCode() == 201) {
-                            progressDialog.dismiss();
-                            Toast.makeText(getContext(),  response.body().getMessage() + " with no : " + response.body().getOrder_no(), Toast.LENGTH_SHORT).show();
-                            // Replace the current fragment by new Fragment.
-                            Bundle bundle = new Bundle();
-                            ReceiptFragment receiptFragment = new ReceiptFragment();
-                            FragmentTransaction fragmentTransaction = getActivity().getSupportFragmentManager().beginTransaction();
-                            bundle.putString("order_no", response.body().getOrder_no());
-                            fragmentTransaction.replace(R.id.flContent, receiptFragment);
-                            receiptFragment.setArguments(bundle);
-                            fragmentTransaction.commit();
-
+                    Call<CustomerOrderResponse> customerOrderResponseCall = service.placeOrder(new CustomerOrderRequest(customer_id, orders, order_type));
+                    customerOrderResponseCall.enqueue(new Callback<CustomerOrderResponse>() {
+                        @Override
+                        public void onResponse(Call<CustomerOrderResponse> call, Response<CustomerOrderResponse> response) {
+                            if(response.isSuccessful() && response.body().getCode() == 201) {
+                                progressDialog.dismiss();
+                                Toast.makeText(getContext(),  response.body().getMessage() + " with no : " + response.body().getOrder_no(), Toast.LENGTH_SHORT).show();
+                                // Replace the current fragment by new Fragment.
+                                Bundle bundle = new Bundle();
+                                ReceiptFragment receiptFragment = new ReceiptFragment();
+                                FragmentTransaction fragmentTransaction = getActivity().getSupportFragmentManager().beginTransaction();
+                                bundle.putString("order_no", response.body().getOrder_no());
+                                fragmentTransaction.replace(R.id.flContent, receiptFragment);
+                                receiptFragment.setArguments(bundle);
+                                fragmentTransaction.commit();
+                            }
                         }
-                    }
 
-                    @Override
-                    public void onFailure(Call<CustomerOrderResponse> call, Throwable t) {
-                        Toast.makeText(getContext(), t.getMessage(), Toast.LENGTH_SHORT).show();
-                        progressDialog.dismiss();
-                    }
-                });
+                        @Override
+                        public void onFailure(Call<CustomerOrderResponse> call, Throwable t) {
+                            Toast.makeText(getContext(), t.getMessage(), Toast.LENGTH_SHORT).show();
+                            progressDialog.dismiss();
+                        }
+                    });
+                }
+
+
             }
+
+
 
 
 
@@ -141,19 +159,19 @@ public class CartFragment extends Fragment {
             public void onResponse(Call<CustomerCartResponse> call, Response<CustomerCartResponse> response) {
                 if(response.isSuccessful()) {
                     customerCartResponseList = response.body().getFoods();
-
-                    foodAdapter = new CartAdapter(customerCartResponseList, getContext());
+                    foodAdapter = new CartAdapter(customerCartResponseList, getContext(), CartFragment.this);
                     recyclerView = view.findViewById(R.id.cart_recycler_view);
                     recyclerView.setLayoutManager(new GridLayoutManager(getActivity(), 1));
 //                    layoutManager = new LinearLayoutManager(getContext());
 //                    recyclerView.setLayoutManager(layoutManager);
                     recyclerView.setAdapter(foodAdapter);
 
-                    for(FoodResponse f : response.body().getFoods()) {
+                    for(FoodResponse f : customerCartResponseList) {
+                        Log.d(TAG, "TOTAL_COST" + f.getPrice());
                         totalCost += f.getPrice();
                     }
 
-                    btnSubmitOrder.setText(String.format("TOTAL : %s - SUBMIT ORDER", String.valueOf(totalCost)));
+                    btnSubmitOrder.setText(String.format("TOTAL : ₱%s.00 - SUBMIT ORDER", String.valueOf(totalCost)));
                     progressDialog.dismiss();
                 }
             }
@@ -165,6 +183,22 @@ public class CartFragment extends Fragment {
             }
         });
 
+    }
+
+    // this method is for after deletion of the item in the cart need to update the total price.
+    public void updateTotalPrice(Double price)
+    {
+        totalCost = (int) (totalCost - price);
+        btnSubmitOrder.setText(String.format("TOTAL : ₱%s.00 - SUBMIT ORDER", String.valueOf(totalCost)));
+
+    }
+
+
+    @Override
+    public void sendType(String type) {
+        // Save the selected Type.
+        SharedPref.setSharedPreferenceString(getContext(),"selected_type", type);
+        Toast.makeText(getContext(), "You select : " + type, Toast.LENGTH_SHORT).show();
     }
 
 

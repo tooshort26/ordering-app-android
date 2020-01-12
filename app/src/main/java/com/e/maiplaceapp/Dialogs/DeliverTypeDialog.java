@@ -25,7 +25,6 @@ public class DeliverTypeDialog extends DialogFragment {
 
     public onSelectTypeSend mOnSelectedTypeSend;
 
-    private Button mDialogCancel;
     private Button mDialogOkay;
     private RadioButton selectedDeliverType;
     private RadioGroup radioDeliverType;
@@ -34,15 +33,9 @@ public class DeliverTypeDialog extends DialogFragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.cart_deliver_type_dialog, container, false);
-        mDialogCancel = view.findViewById(R.id.btnDialogCancel);
         mDialogOkay = view.findViewById(R.id.btnDialogOkay);
         radioDeliverType = view.findViewById(R.id.radioDeliverType);
 
-
-        mDialogCancel.setOnClickListener(v -> {
-            Log.d(TAG, "onClick : closing the dialog");
-            getDialog().dismiss();
-        });
 
         mDialogOkay.setOnClickListener(v -> {
             Log.d(TAG, "onClick : capturing input");

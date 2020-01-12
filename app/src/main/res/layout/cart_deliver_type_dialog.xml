@@ -1,18 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical" android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:padding="20dp">
 
 
     <TextView
-        android:text="If you did not choose any type it will automatically set as deliver."
-        android:textSize="20sp"
+        android:text="Select if you like to pick-up or deliver your order"
+        android:textSize="18sp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textStyle="bold"
         android:textAlignment="center"
         android:fontFamily="@font/product_sans"
+        android:textColor="@color/colorPrimary"
         android:layout_marginBottom="10dp"/>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#C9C9C9"/>
 
     <RadioGroup
         android:id="@+id/radioDeliverType"
@@ -36,23 +42,22 @@
     </RadioGroup>
 
     <LinearLayout
+        android:layout_marginTop="5dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
         android:orientation="horizontal">
 
-        <Button
-            android:id="@+id/btnDialogCancel"
-            android:layout_width="150dp"
-            android:layout_height="wrap_content"
-            android:text="Cancel"/>
-
 
         <Button
             android:id="@+id/btnDialogOkay"
-            android:layout_width="150dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Okay"/>
+            android:background="@color/colorPrimary"
+            android:textColor="#ffffff"
+            android:fontFamily="@font/product_sans"
+            android:textStyle="bold"
+            android:text="Set Option"/>
 
 
     </LinearLayout>

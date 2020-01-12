@@ -16,7 +16,7 @@
             android:textSize="20sp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textStyle="bold"
+            android:textColor="@color/colorPrimary"
             android:fontFamily="@font/product_sans"
             android:layout_marginBottom="20dp"/>
 
@@ -24,6 +24,7 @@
             android:id="@+id/foodQuantity"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:inputType="numberSigned"
             android:hint="@string/enter_quantity"
             />
 
@@ -33,18 +34,16 @@
             android:gravity="center"
             android:orientation="horizontal">
 
-            <Button
-                android:id="@+id/btnDialogCancel"
-                android:layout_width="150dp"
-                android:layout_height="wrap_content"
-                android:text="Cancel"/>
-
 
             <Button
                 android:id="@+id/btnDialogOkay"
-                android:layout_width="150dp"
+                android:background="@color/colorPrimaryDark"
+                android:textColor="#ffff"
+                android:textStyle="bold"
+                android:fontFamily="@font/product_sans"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Okay"/>
+                android:text="ADD"/>
 
 
         </LinearLayout>

@@ -23,7 +23,7 @@
             android:layout_toEndOf="@id/cart_food_image"
             android:gravity="center_vertical"
             android:layout_width="match_parent"
-            android:layout_height="100dp"
+            android:layout_height="wrap_content"
             android:padding="3dp"
             android:orientation="vertical">
 
@@ -73,6 +73,26 @@
                      />
 
 
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="end|center_horizontal"
+                    android:orientation="horizontal">
+
+
+                        <Button
+                            android:id="@+id/cartItemDelete"
+                            android:minHeight="30dp"
+                            android:minWidth="70dp"
+                            android:background="#CC3433"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/product_sans"
+                            android:textColor="#ffffff"
+                            android:src="@drawable/ic_add_shopping_cart_black_24dp"
+                            android:text="REMOVE"/>
+
+                </LinearLayout>
 
 
         </LinearLayout>

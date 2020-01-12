@@ -15,6 +15,8 @@ import com.e.maiplaceapp.API.IUser;
 import com.e.maiplaceapp.Helpers.SharedPref;
 import com.e.maiplaceapp.Models.CustomerLoginRequest;
 import com.e.maiplaceapp.Models.CustomerLoginResponse;
+import com.e.maiplaceapp.Models.CustomerRequest;
+import com.e.maiplaceapp.Models.CustomerResponse;
 import com.e.maiplaceapp.Services.Service;
 import com.facebook.AccessToken;
 import com.facebook.AccessTokenTracker;
@@ -43,10 +45,14 @@ import retrofit2.Retrofit;
 
 
 public class LoginActivity extends AppCompatActivity implements View.OnClickListener {
+    private static final String TAG = "LoginActivity";
+
     private ProgressDialog progressDialog;
     private LoginButton loginButton;
     private CallbackManager callbackManager;
+    private boolean hasExecute = false;
     SignInButton signInButton;
+
 
     // This code is for google sign in.
     private static final int RC_SIGN_IN = 9001;
@@ -119,7 +125,6 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                 new FacebookCallback<LoginResult>() {
                     @Override
                     public void onSuccess(LoginResult loginResult) {
-
                     }
 
                     @Override
@@ -132,7 +137,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                     }
                 });
 
-        this.forDevelopment();
+//        this.forDevelopment();
         this.isUserLoggedInByGoogle(account);
 
 
@@ -156,6 +161,8 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                         progressDialog.dismiss();
                         SharedPref.setSharedPreferenceBoolean(getApplicationContext(),"is_logged", true);
                         SharedPref.setSharedPreferenceInt(getApplicationContext(),"customer_id", response.body().getId());
+                        SharedPref.setSharedPreferenceString(getApplicationContext(),"firstname", response.body().getFirstname());
+                        SharedPref.setSharedPreferenceString(getApplicationContext(),"lastname", response.body().getLastname());
 
                         proceedToDashboard();
                     } else {
@@ -181,6 +188,8 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         });
 
 
+        logoutAnySocialMedia();
+
 //        mSocket.connect();
 //        mSocket.on("sample", onNewMessage);
 
@@ -188,16 +197,23 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
     }
 
+    private void logoutAnySocialMedia() {
+        if(SharedPref.getSharedPreferenceBoolean(this, "logout_social_media", false)) {
+            mGoogleSignInClient.signOut();
+            LoginManager.getInstance().logOut();
+        }
+    }
+
     private void isUserLoggedInByFacebook() {
         Profile profile = Profile.getCurrentProfile();
         if(profile != null) {
-            Toast.makeText(this, "The user logged in by facebook", Toast.LENGTH_SHORT).show();
+//            Toast.makeText(this, "The user logged in by facebook", Toast.LENGTH_SHORT).show();
         }
     }
 
     private void isUserLoggedInByGoogle(GoogleSignInAccount account) {
         if(account != null) {
-            Toast.makeText(this, "The user logged in by facebook", Toast.LENGTH_SHORT).show();
+//            Toast.makeText(this, "The user logged in by facebook", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -231,7 +247,38 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
             GoogleSignInAccount account = completedTask.getResult(ApiException.class);
             // Update the UI
             if(account != null) {
-                Toast.makeText(this, "Redirect the user logged in using google", Toast.LENGTH_SHORT).show();
+
+                Retrofit retrofit = Service.RetrofitInstance(this);
+                IUser service    = retrofit.create(IUser.class);
+
+                Call<CustomerResponse> customerResponseCall = service.register(
+                        new CustomerRequest(
+                                null,
+                                account.getGivenName(), null,
+                                account.getFamilyName(), null,
+                                null, null
+                        )
+                );
+
+                customerResponseCall.enqueue(new Callback<CustomerResponse>() {
+                    @Override
+                    public void onResponse(Call<CustomerResponse> call, Response<CustomerResponse> response) {
+                        if  (response.isSuccessful()) {
+                            SharedPref.setSharedPreferenceBoolean(getApplicationContext(),"is_logged", true);
+                            SharedPref.setSharedPreferenceBoolean(getApplicationContext(),"from_third_party", true);
+                            SharedPref.setSharedPreferenceInt(getApplicationContext(),"customer_id", response.body().getId());
+                            Intent intent = new Intent(LoginActivity.this, DashboardActivity.class);
+                            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NO_ANIMATION);
+                            startActivity(intent);
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<CustomerResponse> call, Throwable t) {
+                        Toast.makeText(LoginActivity.this, t.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                });
+
                 Log.d("FROM_GOOGLE_SIGN_IN", account.getDisplayName() + " ," + account.getEmail() + ","  + account.getPhotoUrl());
             }
 
@@ -245,6 +292,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     }
 
     AccessTokenTracker tokenTracker = new AccessTokenTracker() {
+
         @Override
         protected void onCurrentAccessTokenChanged(AccessToken oldAccessToken, AccessToken currentAccessToken) {
             if  (currentAccessToken != null) {
@@ -257,14 +305,17 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     {
         GraphRequest request = GraphRequest.newMeRequest(newAccessToken, (object, response) -> {
             try {
-//                Log.d("FACEBOOK_PROFILE", object.toString());
                 String first_name = object.getString("first_name");
                 String last_name = object.getString("last_name");
-                String email = object.getString("email");
-                String id = object.getString("id");
-                String image_url = "https://graph.facebook.com/" + id + "picture?type=normal";
+                String userId = object.getString("id");
+                String image_url = "https://graph.facebook.com/" + userId + "picture?type=normal";
 
-
+                SharedPref.setSharedPreferenceString(getApplicationContext(),"firstname", first_name);
+                SharedPref.setSharedPreferenceString(getApplicationContext(),"lastname", last_name);
+                SharedPref.setSharedPreferenceBoolean(getApplicationContext(),"from_facebook_login", true);
+                Intent intent = new Intent(LoginActivity.this, DashboardActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NO_ANIMATION);
+                startActivity(intent);
             } catch (JSONException e) {
                 e.printStackTrace();
             }

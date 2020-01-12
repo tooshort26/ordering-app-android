@@ -1,12 +1,9 @@
-package com.e.maiplaceapp.Models;
+package com.e.maiplaceapp.Models.Profile;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-import java.util.List;
-
-
-public class CustomerReceiptResponse {
+public class CustomerProfileResponse {
 
     @SerializedName("id")
     @Expose
@@ -17,15 +14,15 @@ public class CustomerReceiptResponse {
     @SerializedName("lastname")
     @Expose
     private String lastname;
+    @SerializedName("email")
+    @Expose
+    private String email;
     @SerializedName("phone_number")
     @Expose
     private String phoneNumber;
     @SerializedName("address")
     @Expose
     private String address;
-    @SerializedName("orders")
-    @Expose
-    private List<Order> orders = null;
 
     public Integer getId() {
         return id;
@@ -51,6 +48,14 @@ public class CustomerReceiptResponse {
         this.lastname = lastname;
     }
 
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
     public String getPhoneNumber() {
         return phoneNumber;
     }
@@ -67,12 +72,5 @@ public class CustomerReceiptResponse {
         this.address = address;
     }
 
-    public List<Order> getOrders() {
-        return orders;
-    }
-
-    public void setOrders(List<Order> orders) {
-        this.orders = orders;
-    }
 
 }

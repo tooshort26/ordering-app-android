@@ -1,4 +1,4 @@
-package com.e.maiplaceapp.Models;
+package com.e.maiplaceapp.Models.Cart;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;

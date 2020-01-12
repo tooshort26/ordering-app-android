@@ -1,12 +1,13 @@
-package com.e.maiplaceapp.Models;
+package com.e.maiplaceapp.Models.Cart;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-public class CustomerAddCartResponse {
+public class CustomerRemoveItemInCartResponse {
     @SerializedName("message")
     @Expose
     private String message;
+
     @SerializedName("code")
     @Expose
     private Integer code;
@@ -15,8 +16,15 @@ public class CustomerAddCartResponse {
         return message;
     }
 
+    public void setMessage(String message) {
+        this.message = message;
+    }
+
     public Integer getCode() {
         return code;
     }
 
+    public void setCode(Integer code) {
+        this.code = code;
+    }
 }

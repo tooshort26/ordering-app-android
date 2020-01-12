@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".CompleteDetailsActivity">
+
+
+    <LinearLayout
+        android:layout_centerInParent="true"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+
+        <ImageView
+            android:layout_gravity="center"
+            android:layout_width="150dp"
+            android:layout_height="150dp"
+            android:src="@drawable/maiplace"/>
+
+        <TextView
+            android:text="Maiplace detect that you used a social media account to login please fill in those fields to start using this application."
+            android:textSize="18sp"
+            android:layout_marginTop="15dp"
+            android:textAlignment="center"
+            android:layout_width="match_parent"
+            android:textColor="@color/colorPrimaryDark"
+            android:layout_height="wrap_content"/>
+
+        <EditText
+            android:id="@+id/editTextEmail"
+            android:hint="Enter your email address"
+            android:padding="15dp"
+            android:singleLine="true"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
+
+        <EditText
+            android:id="@+id/editTextPhoneNumber"
+            android:hint="Enter your phone number"
+            android:padding="15dp"
+            android:singleLine="true"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
+
+        <EditText
+            android:id="@+id/editTextAddress"
+            android:hint="Enter your address"
+            android:padding="15dp"
+            android:singleLine="true"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
+            <Button
+                android:id="@+id/btnSubmit"
+                android:layout_marginTop="5dp"
+                android:background="@color/colorPrimaryDark"
+                android:text="Submit"
+                android:minWidth="180dp"
+                android:layout_gravity="center_horizontal"
+                android:minHeight="40dp"
+                android:textColor="#ffffff"
+                android:fontFamily="@font/product_sans"
+                android:textStyle="bold"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+
+
+    </LinearLayout>
+
+</RelativeLayout>

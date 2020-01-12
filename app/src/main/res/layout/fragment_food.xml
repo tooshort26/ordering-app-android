@@ -18,38 +18,10 @@
 <!--        android:hint="Search for a food..."/>-->
 
 
-    <LinearLayout
 
-        android:id="@+id/optionsLayout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center_horizontal"
-      >
-
-        <Button
-            android:id="@+id/btnMenu"
-            android:text="MENU"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
-
-        <Button
-            android:id="@+id/btnStoreLocator"
-            android:text="Store Locator"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
-
-        <Button
-            android:id="@+id/btnOptions"
-            android:text="Options"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
-
-    </LinearLayout>
 
     <LinearLayout
         android:id="@+id/foodFragmentLayout"
-        android:layout_below="@id/optionsLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical">

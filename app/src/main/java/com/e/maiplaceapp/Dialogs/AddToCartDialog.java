@@ -32,14 +32,10 @@ public class AddToCartDialog extends DialogFragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.cart_layout_dialog, container, false);
-        mDialogCancel = view.findViewById(R.id.btnDialogCancel);
         mDialogOkay = view.findViewById(R.id.btnDialogOkay);
         editTextQuantity = view.findViewById(R.id.foodQuantity);
 
-        mDialogCancel.setOnClickListener(v -> {
-            Log.d(TAG, "onClick : closing the dialog");
-            getDialog().dismiss();
-        });
+
 
         mDialogOkay.setOnClickListener(v -> {
             Log.d(TAG, "onClick : capturing input");

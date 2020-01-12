@@ -1,7 +1,9 @@
 package com.e.maiplaceapp.API;
 
-import com.e.maiplaceapp.Models.CustomerAddCartRequest;
-import com.e.maiplaceapp.Models.CustomerAddCartResponse;
+import com.e.maiplaceapp.Models.Cart.CustomerAddCartRequest;
+import com.e.maiplaceapp.Models.Cart.CustomerAddCartResponse;
+import com.e.maiplaceapp.Models.Cart.CustomerRemoveItemInCartRequest;
+import com.e.maiplaceapp.Models.Cart.CustomerRemoveItemInCartResponse;
 import com.e.maiplaceapp.Models.CustomerCartResponse;
 
 import retrofit2.Call;
@@ -16,4 +18,7 @@ public interface ICart {
 
     @POST("/customer/cart")
     Call<CustomerAddCartResponse> add(@Body CustomerAddCartRequest customerAddCartRequest);
+
+    @POST("/customer/cart/remove/item")
+    Call<CustomerRemoveItemInCartResponse> remove(@Body CustomerRemoveItemInCartRequest customerRemoveItemInCartRequest);
 }

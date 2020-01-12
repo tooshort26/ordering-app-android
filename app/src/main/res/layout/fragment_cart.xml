@@ -9,8 +9,24 @@
         tools:context=".CartFragment">
 
 
+
     <Button
+        android:id="@+id/btnOptions"
+        android:text="Options"
+        android:background="@color/colorPrimary"
+        android:textStyle="bold"
+        android:textColor="#ffffff"
+        android:fontFamily="@font/product_sans"
+        android:layout_marginBottom="5dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+
+    <Button
+        android:layout_below="@id/btnOptions"
         android:id="@+id/btnPlaceOrder"
+        android:background="@color/colorPrimary"
+        android:textStyle="bold"
+        android:textColor="#ffffff"
         android:fontFamily="@font/product_sans"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -18,6 +34,7 @@
 
 
         <androidx.recyclerview.widget.RecyclerView
+            android:layout_marginTop="5dp"
             android:layout_below="@+id/btnPlaceOrder"
             android:id="@+id/cart_recycler_view"
             android:layout_width="match_parent"

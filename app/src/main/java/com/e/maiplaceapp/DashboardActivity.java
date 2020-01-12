@@ -8,7 +8,9 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.ActionBarDrawerToggle;
@@ -17,18 +19,28 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
+import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
+import com.e.maiplaceapp.API.ICategory;
+import com.e.maiplaceapp.API.IUser;
 import com.e.maiplaceapp.Adapters.CategoryAdapter;
 import com.e.maiplaceapp.Helpers.SharedPref;
+import com.e.maiplaceapp.Helpers.Strings;
 import com.e.maiplaceapp.Models.Category.CategoryResponse;
-import com.github.nkzawa.socketio.client.IO;
-import com.github.nkzawa.socketio.client.Socket;
+import com.e.maiplaceapp.Models.CustomerRequest;
+import com.e.maiplaceapp.Models.CustomerResponse;
+import com.e.maiplaceapp.Services.Service;
 import com.google.android.material.navigation.NavigationView;
 
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
 
 public class DashboardActivity extends AppCompatActivity {
 
@@ -40,34 +52,21 @@ public class DashboardActivity extends AppCompatActivity {
     private LinearLayout dashboardMainLayout;
     private LinearLayout mainLayout;
 
+
+
     private Button btnSignout, btnViewMenu;
 
     private ProgressDialog progressDialog;
 
 
-//    RecyclerView recyclerView;
+    RecyclerView recyclerView;
     CategoryAdapter categoryAdapter;
     LinearLayoutManager layoutManager;
 
     List<CategoryResponse> categories = new ArrayList<>();
 
-    private Socket mSocket;
-    {
-        try {
-            mSocket = IO.socket("http://192.168.1.10:3030");
-        } catch (URISyntaxException e) {
-            Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
-        }
-    }
 
- /*   private Emitter.Listener onNewMessage = args -> runOnUiThread(() -> {
-        JSONObject data = (JSONObject) args[0];
-        Toast.makeText(this, String.valueOf(data), Toast.LENGTH_LONG).show();
-    });
 
-*/
-
-//        findViewById(R.id.sendData).setOnClickListener(v -> mSocket.emit("testing", "This is a sample text"));
 
 
 
@@ -77,24 +76,9 @@ public class DashboardActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_dashboard);
 
-        mSocket.connect();
 
 
-
-    /*
-        try {
-            PackageInfo info = getPackageManager().getPackageInfo("com.e.maiplaceapp", PackageManager.GET_SIGNATURES);
-            for (Signature signature : info.signatures) {
-                MessageDigest md = MessageDigest.getInstance("SHA");
-                md.update(signature.toByteArray());
-                Log.d("KeyHash:", Base64.encodeToString(md.digest(), Base64.DEFAULT));
-            }
-        } catch (PackageManager.NameNotFoundException e) {
-            e.printStackTrace();
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        }
-        */
+        userFromFacebookRegister();
 
 
 
@@ -111,8 +95,8 @@ public class DashboardActivity extends AppCompatActivity {
         mainLayout = findViewById(R.id.mainLayout);
 
         // Buttons
-        btnViewMenu = findViewById(R.id.btnViewMenu);
-        btnSignout = findViewById(R.id.btnSignOut);
+/*        btnViewMenu = findViewById(R.id.btnViewMenu);
+        btnSignout = findViewById(R.id.btnSignOut);*/
 
         // Dashboard main layout
         dashboardMainLayout = findViewById(R.id.dashboardMainLayout);
@@ -126,6 +110,11 @@ public class DashboardActivity extends AppCompatActivity {
 
 
         nvDrawer = findViewById(R.id.nvView);
+
+
+        // Set the header name of navigation to the current user.
+        NavigationView navigationView = findViewById(R.id.nvView);
+        View hView =  navigationView.getHeaderView(0);
 
         // Setup drawer view
         setupDrawerContent(nvDrawer);
@@ -142,28 +131,126 @@ public class DashboardActivity extends AppCompatActivity {
         mDrawer.addDrawerListener(drawerToggle);
 
 
-        btnSignout.setOnClickListener(v -> {
+      /*  btnSignout.setOnClickListener(v -> {
             SharedPref.setSharedPreferenceBoolean(getApplicationContext(),"is_logged", false);
             SharedPref.setSharedPreferenceInt(getApplicationContext(),"customer_id", 0);
-
             Intent intent = new Intent(DashboardActivity.this, LoginActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             startActivity(intent);
-        });
+            finish();
+        });*/
 
-        btnViewMenu.setOnClickListener(v -> {
+        /*btnViewMenu.setOnClickListener(v -> {
             dashboardMainLayout.removeView(mainLayout);
             frameLayout.setVisibility(View.VISIBLE);
             FoodFragment foodFragment = new FoodFragment();
             FragmentManager fragmentManager = getSupportFragmentManager();
             fragmentManager.beginTransaction().replace(R.id.flContent, foodFragment, "FoodFragment").commit();
-        });
+        });*/
 
+
+       this.displayUserNameAndSetEventInNavigation(hView);
+
+        this.requestCategories();
+
+    }
+
+    public void getSample(int id)
+    {
+        dashboardMainLayout.removeView(mainLayout);
+        frameLayout.setVisibility(View.VISIBLE);
+        Bundle bundle = new Bundle();
+        bundle.putInt("category_id", id);
+        FoodFragment foodFragment = new FoodFragment();
+        foodFragment.setArguments(bundle);
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        fragmentManager.beginTransaction().replace(R.id.flContent, foodFragment, "FoodFragment").commit();
+    }
+
+
+    private void displayUserNameAndSetEventInNavigation(View hView) {
+        TextView navUsername = hView.findViewById(R.id.userName);
+        ImageView navImage = hView.findViewById(R.id.userProfile);
+        String customerName = Strings.capitalize(SharedPref.getSharedPreferenceString(this,"firstname", "")) + " " + Strings.capitalize(SharedPref.getSharedPreferenceString(this,"lastname", ""));
+        navUsername.setText(customerName);
+        navUsername.setOnClickListener(v -> this.gotoUserProfile() );
+        navImage.setOnClickListener(v -> this.gotoUserProfile());
+    }
+
+    private void gotoUserProfile()
+    {
+        Fragment fragment = null;
+        Class fragmentClass = ProfileFragment.class;
+
+        try {
+            fragment = (Fragment) fragmentClass.newInstance();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        dashboardMainLayout.removeView(mainLayout);
+        frameLayout.setVisibility(View.VISIBLE);
+
+        // Insert the fragment by replacing any existing fragment
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        fragmentManager.beginTransaction().replace(R.id.flContent, fragment).commit();
+        dashboardMainLayout.removeView(mainLayout);
+        frameLayout.setVisibility(View.VISIBLE);
+
+        // Insert the fragment by replacing any existing fragment
+        fragmentManager.beginTransaction().replace(R.id.flContent, fragment).commit();
+
+        // Highlight the selected item has been done by NavigationView
+        mDrawer.closeDrawers();
 
 
     }
 
 
+
+    private void userFromFacebookRegister() {
+        if(SharedPref.getSharedPreferenceBoolean(this,"from_facebook_login", false)) {
+            progressDialog = new ProgressDialog(this);
+            progressDialog.setMessage("Please wait...");
+            progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+            progressDialog.show();
+            String first_name = SharedPref.getSharedPreferenceString(this,"firstname", null);
+            String last_name = SharedPref.getSharedPreferenceString(this,"lastname", null);
+
+            Retrofit retrofit = Service.RetrofitInstance(this);
+            IUser service    = retrofit.create(IUser.class);
+
+            Call<CustomerResponse> customerResponseCall = service.register(
+                    new CustomerRequest(
+                            null,
+                            first_name, null,
+                            last_name, null,
+                            null, null
+                    )
+            );
+
+            customerResponseCall.enqueue(new Callback<CustomerResponse>() {
+                @Override
+                public void onResponse(Call<CustomerResponse> call, Response<CustomerResponse> response) {
+                    if  (response.isSuccessful()) {
+                        progressDialog.dismiss();
+                        SharedPref.setSharedPreferenceBoolean(getApplicationContext(),"is_logged", true);
+                        SharedPref.setSharedPreferenceBoolean(getApplicationContext(),"from_third_party", true);
+                        SharedPref.setSharedPreferenceInt(getApplicationContext(),"customer_id", response.body().getId());
+                        SharedPref.setSharedPreferenceBoolean(getApplicationContext(),"from_facebook_login", false);
+                        Intent intent = new Intent(DashboardActivity.this, CompleteDetailsActivity.class);
+                        startActivity(intent);
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<CustomerResponse> call, Throwable t) {
+                    progressDialog.dismiss();
+                    Toast.makeText(DashboardActivity.this, t.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+            });
+        }
+    }
 
 
     //TODO Save the categories first in DB then perform search.
@@ -180,7 +267,9 @@ public class DashboardActivity extends AppCompatActivity {
     }
 */
 
-  /*  private void requestCategories() {
+   private void requestCategories() {
+
+
         Retrofit retrofit     = Service.RetrofitInstance(getApplicationContext());
         ICategory service    = retrofit.create(ICategory.class);
 
@@ -189,9 +278,15 @@ public class DashboardActivity extends AppCompatActivity {
         categoryResponseCall.enqueue(new Callback<List<CategoryResponse>>() {
             @Override
             public void onResponse(Call<List<CategoryResponse>> call, Response<List<CategoryResponse>> response) {
-                if(response.isSuccessful() && response.code() == 200) {
+                categories = response.body();
 
-                }
+                categoryAdapter = new CategoryAdapter(categories, getApplicationContext());
+                recyclerView = findViewById(R.id.category_recycler_view);
+                recyclerView.setLayoutManager(new GridLayoutManager(getApplicationContext(), 1));
+//                    layoutManager = new LinearLayoutManager(getContext());
+//                    recyclerView.setLayoutManager(layoutManager);
+                recyclerView.setAdapter(categoryAdapter);
+
             }
 
             @Override
@@ -201,7 +296,7 @@ public class DashboardActivity extends AppCompatActivity {
         });
 
 
-    }*/
+    }
 
     // `onPostCreate` called when activity start-up is complete after `onStart()`
     // NOTE 1: Make sure to override the method with only a single `Bundle` argument
@@ -248,27 +343,25 @@ public class DashboardActivity extends AppCompatActivity {
                 isFragment = true;
                 break;
 
-//            case R.id.nav_dashboard:
-//                Intent intent1 = new Intent(this, DashboardActivity.class);
-//                intent1.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-//                startActivity(intent1);
-//                break;
-
-
             case R.id.menu:
-                dashboardMainLayout.removeView(mainLayout);
-                frameLayout.setVisibility(View.VISIBLE);
-                FoodFragment foodFragment = new FoodFragment();
-                FragmentManager fragmentManager = getSupportFragmentManager();
-                fragmentManager.beginTransaction().replace(R.id.flContent, foodFragment, "FoodFragment").commit();
+                Intent intent1 = new Intent(this, DashboardActivity.class);
+                intent1.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                startActivity(intent1);
                 break;
 
-
-
-
-            default:
-                fragmentClass = CartFragment.class;
+            case R.id.account_setting:
+                fragmentClass = ProfileFragment.class;
                 isFragment = true;
+                break;
+
+            case R.id.sign_out:
+                SharedPref.setSharedPreferenceBoolean(getApplicationContext(),"is_logged", false);
+                SharedPref.setSharedPreferenceInt(getApplicationContext(),"customer_id", 0);
+                Intent intent = new Intent(DashboardActivity.this, LoginActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                startActivity(intent);
+                finish();
+                break;
         }
 
         if  (isFragment) {

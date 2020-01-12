@@ -81,9 +81,6 @@ public class RegisterActivity extends AppCompatActivity {
          address = findViewById(R.id.address);
          btnRegister = findViewById(R.id.btnRegister);
 
-         this.forDevelopmentPurpose();
-
-
 
 
         // Initialize Form Validator
@@ -107,8 +104,6 @@ public class RegisterActivity extends AppCompatActivity {
         getLastLocation();
 
         btnRegister.setOnClickListener(v -> {
-
-
             if  (mAwesomeValidation.validate()) {
                 // Register user then proceed to dashboard
                 this.registerUser();
@@ -121,12 +116,10 @@ public class RegisterActivity extends AppCompatActivity {
     private void forDevelopmentPurpose() {
         password.setText("oop");
         firstName.setText("christopher");
-        middleName.setText("platino");
         lastName.setText("vistal");
         email.setText("christophervistal26@gmail.com");
         phoneNumber.setText("09193693499");
         address.setText("Tandag City");
-
     }
 
     private void registerUser() {

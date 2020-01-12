@@ -96,10 +96,12 @@
                 android:id="@+id/firstName"/>
 
             <EditText
+                android:visibility="gone"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:fontFamily="@font/product_sans"
                 android:hint="Middlename"
+                android:text="default"
                 android:singleLine="true"
                 android:layout_marginBottom="15dp"
                 android:padding="10dp"

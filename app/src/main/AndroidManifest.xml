@@ -14,14 +14,15 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+        <activity android:name=".CompleteDetailsActivity"></activity>
 
         <meta-data
             android:name="com.facebook.sdk.ApplicationId"
             android:value="@string/facebook_app_id"
             tools:replace="android:value" />
 
-        <activity android:name=".RegisterActivity"></activity>
-        <activity android:name=".DashboardActivity"></activity>
+        <activity android:name=".RegisterActivity" />
+        <activity android:name=".DashboardActivity" />
         <activity android:name=".LoginActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

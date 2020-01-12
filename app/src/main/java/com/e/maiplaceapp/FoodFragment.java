@@ -2,6 +2,7 @@ package com.e.maiplaceapp;
 
 
 import android.app.ProgressDialog;
+import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.util.Log;
@@ -17,6 +18,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -26,12 +28,11 @@ import com.e.maiplaceapp.API.ICart;
 import com.e.maiplaceapp.API.ICategory;
 import com.e.maiplaceapp.Adapters.CategoryAdapter;
 import com.e.maiplaceapp.Dialogs.AddToCartDialog;
-import com.e.maiplaceapp.Dialogs.DeliverTypeDialog;
 import com.e.maiplaceapp.Helpers.SharedPref;
 import com.e.maiplaceapp.Models.Category.CategoryResponse;
 import com.e.maiplaceapp.Models.Category.Food;
-import com.e.maiplaceapp.Models.CustomerAddCartRequest;
-import com.e.maiplaceapp.Models.CustomerAddCartResponse;
+import com.e.maiplaceapp.Models.Cart.CustomerAddCartRequest;
+import com.e.maiplaceapp.Models.Cart.CustomerAddCartResponse;
 import com.e.maiplaceapp.Services.Service;
 import com.squareup.picasso.Picasso;
 
@@ -43,7 +44,7 @@ import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 
-public class FoodFragment extends Fragment implements View.OnClickListener, AddToCartDialog.onQuantitySend, DeliverTypeDialog.onSelectTypeSend {
+public class FoodFragment extends Fragment implements View.OnClickListener, AddToCartDialog.onQuantitySend {
     private static final String TAG = "FoodFragment";
 
     RecyclerView recyclerView;
@@ -72,18 +73,20 @@ public class FoodFragment extends Fragment implements View.OnClickListener, AddT
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
         Retrofit retrofit = Service.RetrofitInstance(getContext());
         ICategory service    = retrofit.create(ICategory.class);
+        int category_id = 0;
+
+        Bundle bundle = this.getArguments();
+        if (bundle != null) {
+            category_id = bundle.getInt("category_id", 0);
+        }
 
 
-        view.findViewById(R.id.btnOptions).setOnClickListener(v -> {
-            // Display the dialog for deliver type.
-            DeliverTypeDialog deliverTypeDialog = new DeliverTypeDialog();
-            deliverTypeDialog.setTargetFragment(FoodFragment.this, 2);
-            deliverTypeDialog.show(getFragmentManager(), "DeliverTypeDialog");
-        });
 
-        view.findViewById(R.id.btnStoreLocator).setOnClickListener(v -> Toast.makeText(getContext(), "Redirect to the active where it's display the store place.", Toast.LENGTH_SHORT).show());
+
+//        view.findViewById(R.id.btnStoreLocator).setOnClickListener(v -> Toast.makeText(getContext(), "Redirect to the active where it's display the store place.", Toast.LENGTH_SHORT).show());
 
         int width = 450;
         int height = 450;
@@ -102,84 +105,79 @@ public class FoodFragment extends Fragment implements View.OnClickListener, AddT
         foodFragmentLayout = view.findViewById(R.id.foodFragmentLayout);
 
 
-        Call<List<CategoryResponse>> categoryResponseCall = service.get();
-        categoryResponseCall.enqueue(new Callback<List<CategoryResponse>>() {
+        Call<CategoryResponse> categoryResponseCall = service.getFoodByCategory(category_id);
+        categoryResponseCall.enqueue(new Callback<CategoryResponse>() {
             @Override
-            public void onResponse(Call<List<CategoryResponse>> call, Response<List<CategoryResponse>> response) {
-                categories = response.body();
-                for(CategoryResponse category: categories)
-                {
-                    TextView categoryName = new TextView(getContext());
+            public void onResponse(Call<CategoryResponse> call, Response<CategoryResponse> response) {
+                CategoryResponse category = response.body();
 
-                    categoryName.setText(category.getName());
-                    categoryName.setTextSize(25);
-                    categoryName.setTypeface(typeface);
+                        TextView categoryName = new TextView(getContext());
 
-                    foodFragmentLayout.addView(categoryName);
+                        categoryName.setText(category.getName());
+                        categoryName.setTextSize(30);
+                        categoryName.setTypeface(typeface);
+                        categoryName.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
 
-                       for(Food food: category.getFoods()) {
-                        // create a new textview
+                        foodFragmentLayout.addView(categoryName);
 
-                        TextView foodTextView = new TextView(getContext());
-                        TextView foodPriceTextView = new TextView(getContext());
-                        ImageView foodImageView = new ImageView(getContext());
-                        Button btnAddToCart = new Button(getContext());
+                        for(Food food: category.getFoods()) {
+                            // create a new textview
 
-                        btnAddToCart.setTag(food.getId());
+                            TextView foodTextView       = new TextView(getContext());
+                            TextView foodPriceTextView  = new TextView(getContext());
+                            ImageView foodImageView     = new ImageView(getContext());
+                            Button btnAddToCart         = new Button(getContext());
 
-                        foodImageView.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
-                        foodImageView.setLayoutParams(parms);
+                            btnAddToCart.setBackgroundColor(ContextCompat.getColor(getActivity(), R.color.colorPrimary));
+                            btnAddToCart.setTextColor(Color.parseColor("#ffffff"));
 
 
-                        // Get Food Images
-                        Picasso.get().load( "http://192.168.1.10:8000"+ food.getImages().get(0).getImage()).into(foodImageView, new com.squareup.picasso.Callback() {
-                            @Override
-                            public void onSuccess() {
-                                Log.d("IMAGE_LOAD_SUCCESS", food.getImages().get(0).getImage());
-                            }
+                            btnAddToCart.setTag(food.getId());
 
-                            @Override
-                            public void onError(Exception e) {
-                                Log.d("IMAGE_LOAD_ERROR", food.getImages().get(0).getImage() + " CAUSE : " + e.getMessage());
-                            }
-                        });
-
-                        foodPriceTextView.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
-                        foodPriceTextView.setTypeface(Typeface.DEFAULT_BOLD);
-                        foodPriceTextView.setText(String.format("PHP: %s", String.valueOf(food.getPrice()).concat(".00")));
-                        foodTextView.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
-                        foodTextView.setText(String.format("%s - %s", food.getName(), food.getDescription()));
-                        btnAddToCart.setText("ADD TO CART");
-                        btnAddToCart.setLayoutParams(addToCartParams);
-                        btnAddToCart.setTypeface(typeface);
-                        btnAddToCart.setOnClickListener(FoodFragment.this);
+                            foodImageView.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
+                            foodImageView.setLayoutParams(parms);
 
 
-                        // add the textview to the linearlayout
-                        foodFragmentLayout.addView(foodImageView);
-                        foodFragmentLayout.addView(foodPriceTextView);
-                        foodFragmentLayout.addView(foodTextView);
-                        foodFragmentLayout.addView(btnAddToCart);
-                    }
 
+                            // Get Food Images
+                            Picasso.get().load( "https://mai-place.herokuapp.com" + food.getImages().get(0).getImage()).into(foodImageView, new com.squareup.picasso.Callback() {
+                                @Override
+                                public void onSuccess() {
+                                    Log.d("IMAGE_LOAD_SUCCESS", food.getImages().get(0).getImage());
+                                }
+
+                                @Override
+                                public void onError(Exception e) {
+                                    Log.d("IMAGE_LOAD_ERROR", food.getImages().get(0).getImage() + " CAUSE : " + e.getMessage());
+                                }
+                            });
+
+                            foodPriceTextView.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
+                            foodPriceTextView.setTypeface(Typeface.DEFAULT_BOLD);
+                            foodPriceTextView.setText(String.format("Price: ₱%s", String.valueOf(food.getPrice()).concat(".00")));
+                            foodTextView.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
+                            foodTextView.setText(String.format("%s - %s", food.getName(), food.getDescription()));
+                            btnAddToCart.setText("ADD TO CART");
+                            btnAddToCart.setLayoutParams(addToCartParams);
+                            btnAddToCart.setTypeface(typeface);
+                            btnAddToCart.setOnClickListener(FoodFragment.this);
+
+
+                            // add the textview to the linearlayout
+                            foodFragmentLayout.addView(foodImageView);
+                            foodFragmentLayout.addView(foodPriceTextView);
+                            foodFragmentLayout.addView(foodTextView);
+                            foodFragmentLayout.addView(btnAddToCart);
                 }
-//
-//                categoryAdapter = new CategoryAdapter(categories, getContext());
-//
-//                recyclerView = view.findViewById(R.id.food_recycler_view);
-//
-//                layoutManager = new LinearLayoutManager(getContext());
-//
-//                recyclerView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false));
-//
-//                recyclerView.setAdapter(categoryAdapter);
+
             }
 
             @Override
-            public void onFailure(Call<List<CategoryResponse>> call, Throwable t) {
+            public void onFailure(Call<CategoryResponse> call, Throwable t) {
 
             }
         });
+
    /*     EditText searchField = view.findViewById(R.id.searchField);
         this.requestFoodsByCategory(categoryId, view);
         // After building the recyclerview we init the function of searchfield.
@@ -300,10 +298,5 @@ public class FoodFragment extends Fragment implements View.OnClickListener, AddT
 
     }
 
-    @Override
-    public void sendType(String type) {
-        // Save the selected Type.
-        SharedPref.setSharedPreferenceString(getContext(),"selected_type", type);
-        Toast.makeText(getContext(), "You select : " + type, Toast.LENGTH_SHORT).show();
-    }
+
 }
