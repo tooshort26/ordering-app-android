@@ -1,6 +1,7 @@
 package com.e.maiplaceapp.Adapters;
 
 import android.annotation.SuppressLint;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -8,7 +9,6 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
@@ -16,6 +16,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.e.maiplaceapp.API.ICart;
 import com.e.maiplaceapp.CartFragment;
+import com.e.maiplaceapp.DashboardActivity;
+import com.e.maiplaceapp.Dialogs.AddToCartDialog;
 import com.e.maiplaceapp.Helpers.SharedPref;
 import com.e.maiplaceapp.Models.Cart.CustomerRemoveItemInCartRequest;
 import com.e.maiplaceapp.Models.Cart.CustomerRemoveItemInCartResponse;
@@ -31,18 +33,17 @@ import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 
-public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartHolder> {
+public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartHolder>  {
 
 
 
-    public interface onItemRemove {
-        void sendItemPrice(double price);
-    }
 
 
     private List<FoodResponse> cartResponseList;
     private Context context;
     private CartFragment cartFragment;
+    private ProgressDialog progressDialog;
+    public int selectFoodId = 0;
 
 
     public CartAdapter(List<FoodResponse> items, Context context, CartFragment cartFragment) {
@@ -80,6 +81,11 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartHolder> {
                 builder.setMessage("Are you sure for removing this item to your cart?");
                 // Set the alert dialog yes button click listener
                 builder.setPositiveButton("Yes", (dialog, which) -> {
+                    progressDialog = new ProgressDialog(v.getContext());
+                    progressDialog.setMessage("Please wait...");
+                    progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+                    progressDialog.setCancelable(false);
+                    progressDialog.show();
                     Retrofit retrofit = Service.RetrofitInstance(v.getContext());
                     ICart service = retrofit.create(ICart.class);
 
@@ -96,12 +102,13 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartHolder> {
                                 cartFragment.updateTotalPrice(cartResponse.getPrice());
                                 cartResponseList.remove(position);
                                 notifyDataSetChanged();
+                                progressDialog.dismiss();
                             }
                         }
 
                         @Override
                         public void onFailure(Call<CustomerRemoveItemInCartResponse> call, Throwable t) {
-                            Toast.makeText(context, t.getMessage(), Toast.LENGTH_SHORT).show();
+                            progressDialog.dismiss();
                         }
                     });
 
@@ -113,24 +120,33 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartHolder> {
                 // Display the alert dialog on interface
                 dialog.show();
             });
-        } else {
+
+
+            holder.cartItemEdit.setOnClickListener(v -> {
+                selectFoodId = cartResponse.getId();
+                SharedPref.setSharedPreferenceInt(this.context, "current_quantity", cartResponse.getQuantity());
+                AddToCartDialog newFragment = AddToCartDialog.newInstance();
+                newFragment.setTargetFragment(cartFragment, 5);
+                newFragment.show(((DashboardActivity) context).getSupportFragmentManager(), "AddToCartDialog");
+            });
 
         }
 
-
-
-
     }
+
 
     @Override
     public int getItemCount() {
         return cartResponseList.size();
     }
 
+
+
+
     class CartHolder extends RecyclerView.ViewHolder {
          TextView txtCartFoodName, txtCartFoodQuantity, txtCartFoodPrice, txtCartCreatedAt;
          ImageView foodImageView;
-         Button cartItemDelete;
+         Button cartItemDelete, cartItemEdit;
 
 
 
@@ -142,6 +158,7 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartHolder> {
             txtCartFoodPrice = itemView.findViewById(R.id.cart_food_price);
             foodImageView = itemView.findViewById(R.id.cart_food_image);
             cartItemDelete = itemView.findViewById(R.id.cartItemDelete);
+            cartItemEdit = itemView.findViewById(R.id.cartItemEdit);
          }
     }
 }

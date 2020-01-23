@@ -99,7 +99,6 @@
         android:layout_alignParentStart="true"
         android:layout_below="@id/txtLabelPhone"
         android:fontFamily="@font/product_sans"
-        android:layout_marginBottom="20dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"/>
 
@@ -108,20 +107,38 @@
         android:layout_alignParentEnd="true"
         android:layout_below="@id/txtLabelOrderDate"
         android:fontFamily="@font/product_sans"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+    <TextView
+        android:id="@+id/txtLabelOrderType"
+        android:layout_below="@id/customerPhone"
+        android:text="Order Type : "
+        android:fontFamily="@font/product_sans"
+        android:textStyle="bold"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+    <TextView
+        android:id="@+id/customerOrderType"
+        android:layout_below="@id/txtLabelOrderType"
+        android:text=""
+        android:fontFamily="@font/product_sans"
         android:layout_marginBottom="20dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"/>
 
 
+
+
     <TextView
         android:layout_marginTop="5dp"
         android:layout_marginBottom="5dp"
-        android:layout_below="@id/customerOrderDate"
+        android:layout_below="@id/customerOrderType"
         android:id="@+id/txtLabelOrderSummary"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:fontFamily="@font/product_sans"
-        android:textStyle="bold"
         android:textSize="18sp"
         android:text="Order Summary" />
 
@@ -167,34 +184,6 @@
         </TableRow>
 
 
-
-        <View
-            android:layout_marginTop="10dp"
-            android:layout_marginBottom="5dp"
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="#9b9b9b"/>
-
-
-
-        <TableRow>
-
-            <TextView
-                android:text="Subtotal"
-                android:gravity="left"
-                android:fontFamily="@font/product_sans"
-                android:textStyle="bold"
-                android:padding="3dip" />
-
-            <TextView
-                android:id="@+id/subTotal"
-                android:layout_width="match_parent"
-                android:text=""
-                android:fontFamily="@font/product_sans"
-                android:textStyle="bold"
-                android:gravity="right"
-                android:padding="3dip" />
-        </TableRow>
 
 
         <View

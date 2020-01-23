@@ -1,4 +1,4 @@
-package com.e.maiplaceapp.Models.Receipt;
+package com.e.maiplaceapp.Models.Orders;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;

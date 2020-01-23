@@ -68,7 +68,6 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.Catego
     class CategoryHolder extends RecyclerView.ViewHolder {
         ImageView categoryImageView;
         TextView txtCategoryName;
-        TextView txtCategoryDescription;
         RelativeLayout categoryLayout;
 
 
@@ -76,9 +75,7 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.Catego
             super(itemView);
 
             txtCategoryName = itemView.findViewById(R.id.category_name);
-            txtCategoryDescription = itemView.findViewById(R.id.category_description);
             categoryLayout = itemView.findViewById(R.id.categoryLayout);
-            categoryImageView = itemView.findViewById(R.id.category_image);
         }
     }
 }

@@ -13,18 +13,26 @@ public class Food {
     @SerializedName("name")
     @Expose
     private String name;
+
     @SerializedName("description")
     @Expose
     private String description;
+
     @SerializedName("category_id")
     @Expose
     private Integer categoryId;
+
     @SerializedName("price")
     @Expose
     private Integer price;
+
     @SerializedName("images")
     @Expose
     private List<Image> images = null;
+
+    @SerializedName("status")
+    @Expose
+    private String status;
 
     public Integer getId() {
         return id;
@@ -70,4 +78,15 @@ public class Food {
         return images;
     }
 
+    public void setImages(List<Image> images) {
+        this.images = images;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
 }

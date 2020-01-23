@@ -139,7 +139,7 @@
             <Button
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:id="@+id/btnRegister"
+                android:id="@+id/signInWithMobile"
                 android:layout_gravity="center"
                 android:background="@color/colorPrimaryDark"
                 android:textColor="#FFFFFF"

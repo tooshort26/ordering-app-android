@@ -105,6 +105,13 @@ public class FoodFragment extends Fragment implements View.OnClickListener, AddT
         foodFragmentLayout = view.findViewById(R.id.foodFragmentLayout);
 
 
+        progressDialog = new ProgressDialog(getContext());
+        progressDialog.setMessage("Please wait...");
+        progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        progressDialog.show();
+
+
+
         Call<CategoryResponse> categoryResponseCall = service.getFoodByCategory(category_id);
         categoryResponseCall.enqueue(new Callback<CategoryResponse>() {
             @Override
@@ -128,8 +135,10 @@ public class FoodFragment extends Fragment implements View.OnClickListener, AddT
                             ImageView foodImageView     = new ImageView(getContext());
                             Button btnAddToCart         = new Button(getContext());
 
-                            btnAddToCart.setBackgroundColor(ContextCompat.getColor(getActivity(), R.color.colorPrimary));
-                            btnAddToCart.setTextColor(Color.parseColor("#ffffff"));
+                            // If the food is remove in the admin stop the render process.
+                            if(food.getStatus().equalsIgnoreCase("remove") ) {
+                                continue;
+                            }
 
 
                             btnAddToCart.setTag(food.getId());
@@ -157,10 +166,22 @@ public class FoodFragment extends Fragment implements View.OnClickListener, AddT
                             foodPriceTextView.setText(String.format("Price: ₱%s", String.valueOf(food.getPrice()).concat(".00")));
                             foodTextView.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
                             foodTextView.setText(String.format("%s - %s", food.getName(), food.getDescription()));
-                            btnAddToCart.setText("ADD TO CART");
+
+
+                            if(food.getStatus().equalsIgnoreCase("out_of_stock")) {
+                                btnAddToCart.setEnabled(false);
+                                btnAddToCart.setBackgroundColor(Color.parseColor("#a30000"));
+                                btnAddToCart.setTextColor(Color.parseColor("#ffffff"));
+                                btnAddToCart.setText("OUT OF STOCK");
+                            } else {
+                                btnAddToCart.setBackgroundColor(ContextCompat.getColor(getActivity(), R.color.colorPrimary));
+                                btnAddToCart.setTextColor(Color.parseColor("#ffffff"));
+                                btnAddToCart.setText("ADD TO CART");
+                                btnAddToCart.setOnClickListener(FoodFragment.this);
+                            }
+
                             btnAddToCart.setLayoutParams(addToCartParams);
                             btnAddToCart.setTypeface(typeface);
-                            btnAddToCart.setOnClickListener(FoodFragment.this);
 
 
                             // add the textview to the linearlayout
@@ -169,12 +190,13 @@ public class FoodFragment extends Fragment implements View.OnClickListener, AddT
                             foodFragmentLayout.addView(foodTextView);
                             foodFragmentLayout.addView(btnAddToCart);
                 }
+                progressDialog.dismiss();
 
             }
 
             @Override
             public void onFailure(Call<CategoryResponse> call, Throwable t) {
-
+                progressDialog.dismiss();
             }
         });
 

@@ -21,8 +21,11 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.e.maiplaceapp.API.ICart;
 import com.e.maiplaceapp.API.IOrder;
 import com.e.maiplaceapp.Adapters.CartAdapter;
+import com.e.maiplaceapp.Dialogs.AddToCartDialog;
 import com.e.maiplaceapp.Dialogs.DeliverTypeDialog;
 import com.e.maiplaceapp.Helpers.SharedPref;
+import com.e.maiplaceapp.Models.Cart.CustomerEditItemInCartRequest;
+import com.e.maiplaceapp.Models.Cart.CustomerEditItemInCartResponse;
 import com.e.maiplaceapp.Models.CustomerCartResponse;
 import com.e.maiplaceapp.Models.CustomerOrderRequest;
 import com.e.maiplaceapp.Models.CustomerOrderResponse;
@@ -39,7 +42,7 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 
 
-public class CartFragment extends Fragment implements  DeliverTypeDialog.onSelectTypeSend {
+public class CartFragment extends Fragment implements  DeliverTypeDialog.onSelectTypeSend , AddToCartDialog.onQuantitySend{
     private static final String TAG = "CartFragment";
     private RecyclerView recyclerView;
     private CartAdapter foodAdapter;
@@ -73,7 +76,7 @@ public class CartFragment extends Fragment implements  DeliverTypeDialog.onSelec
         btnSubmitOrder = view.findViewById(R.id.btnPlaceOrder);
         totalCost = 0;
 
-        this.requestItemsInCart(view);
+        this.requestItemsInCart();
 
 
         view.findViewById(R.id.btnOptions).setOnClickListener(v -> {
@@ -143,7 +146,7 @@ public class CartFragment extends Fragment implements  DeliverTypeDialog.onSelec
         });
     }
 
-    private void requestItemsInCart(View view) {
+    private void requestItemsInCart() {
         progressDialog = new ProgressDialog(getContext());
         progressDialog.setMessage("Please wait...");
         progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
@@ -158,20 +161,7 @@ public class CartFragment extends Fragment implements  DeliverTypeDialog.onSelec
             @Override
             public void onResponse(Call<CustomerCartResponse> call, Response<CustomerCartResponse> response) {
                 if(response.isSuccessful()) {
-                    customerCartResponseList = response.body().getFoods();
-                    foodAdapter = new CartAdapter(customerCartResponseList, getContext(), CartFragment.this);
-                    recyclerView = view.findViewById(R.id.cart_recycler_view);
-                    recyclerView.setLayoutManager(new GridLayoutManager(getActivity(), 1));
-//                    layoutManager = new LinearLayoutManager(getContext());
-//                    recyclerView.setLayoutManager(layoutManager);
-                    recyclerView.setAdapter(foodAdapter);
-
-                    for(FoodResponse f : customerCartResponseList) {
-                        Log.d(TAG, "TOTAL_COST" + f.getPrice());
-                        totalCost += f.getPrice();
-                    }
-
-                    btnSubmitOrder.setText(String.format("TOTAL : ₱%s.00 - SUBMIT ORDER", String.valueOf(totalCost)));
+                    buildItemsInCart(response);
                     progressDialog.dismiss();
                 }
             }
@@ -185,12 +175,29 @@ public class CartFragment extends Fragment implements  DeliverTypeDialog.onSelec
 
     }
 
+    private void buildItemsInCart(Response<CustomerCartResponse> response) {
+        totalCost = 0;
+        customerCartResponseList = new ArrayList<>();
+        customerCartResponseList = response.body().getFoods();
+        foodAdapter = new CartAdapter(customerCartResponseList, getContext(), CartFragment.this);
+        recyclerView = getActivity().findViewById(R.id.cart_recycler_view);
+        recyclerView.setLayoutManager(new GridLayoutManager(getActivity(), 1));
+        recyclerView.setAdapter(foodAdapter);
+
+        for(FoodResponse f : customerCartResponseList) {
+            Log.d(TAG, "TOTAL_COST" + f.getPrice());
+            totalCost += f.getPrice();
+        }
+
+
+        btnSubmitOrder.setText(String.format("TOTAL : ₱%s.00 - SUBMIT ORDER", String.valueOf(totalCost)));
+    }
+
     // this method is for after deletion of the item in the cart need to update the total price.
     public void updateTotalPrice(Double price)
     {
         totalCost = (int) (totalCost - price);
         btnSubmitOrder.setText(String.format("TOTAL : ₱%s.00 - SUBMIT ORDER", String.valueOf(totalCost)));
-
     }
 
 
@@ -202,5 +209,36 @@ public class CartFragment extends Fragment implements  DeliverTypeDialog.onSelec
     }
 
 
+    /*
+    * The food id is from the CartAdapter
+    */
+    @Override
+    public void sendQuantity(String quantity) {
+        // make an request to API changes the quantity of an food.
+        int customer_id = SharedPref.getSharedPreferenceInt(getContext(), "customer_id", 0);
+        Retrofit retrofit = Service.RetrofitInstance(getContext());
+        ICart service    = retrofit.create(ICart.class);
+
+        CustomerEditItemInCartRequest customerEditItemInCartRequest = new CustomerEditItemInCartRequest();
+        customerEditItemInCartRequest.setCustomer_id(customer_id);
+        customerEditItemInCartRequest.setFood_id(foodAdapter.selectFoodId);
+        customerEditItemInCartRequest.setQuantity(Integer.parseInt(quantity));
+
+
+        Call<CustomerEditItemInCartResponse> customerItemsInCart = service.update(customerEditItemInCartRequest);
+        customerItemsInCart.enqueue(new Callback<CustomerEditItemInCartResponse>() {
+            @Override
+            public void onResponse(Call<CustomerEditItemInCartResponse> call, Response<CustomerEditItemInCartResponse> response) {
+                Toast.makeText(getContext(), response.body().getMessage(), Toast.LENGTH_SHORT).show();
+                requestItemsInCart();
+            }
+
+            @Override
+            public void onFailure(Call<CustomerEditItemInCartResponse> call, Throwable t) {
+
+            }
+        });
+
+    }
 }
 

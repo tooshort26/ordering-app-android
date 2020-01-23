@@ -1,4 +1,4 @@
-package com.e.maiplaceapp.Models.Receipt;
+package com.e.maiplaceapp.Models.Orders;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
@@ -6,7 +6,7 @@ import com.google.gson.annotations.SerializedName;
 import java.util.List;
 
 
-public class CustomerReceiptResponse {
+public class CustomerOrderFoodResponse {
 
     @SerializedName("id")
     @Expose
@@ -29,6 +29,10 @@ public class CustomerReceiptResponse {
     @SerializedName("foods")
     @Expose
     private List<Food> foods = null;
+
+    @SerializedName("status")
+    @Expose
+    private String status;
 
     public Integer getId() {
         return id;
@@ -86,4 +90,11 @@ public class CustomerReceiptResponse {
         this.foods = foods;
     }
 
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
 }

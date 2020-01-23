@@ -18,10 +18,11 @@ import androidx.fragment.app.Fragment;
 
 import com.e.maiplaceapp.API.IOrder;
 import com.e.maiplaceapp.Helpers.SharedPref;
+import com.e.maiplaceapp.Helpers.Strings;
 import com.e.maiplaceapp.Models.FoodResponse;
-import com.e.maiplaceapp.Models.Receipt.CustomerReceiptResponse;
-import com.e.maiplaceapp.Models.Receipt.Food;
-import com.e.maiplaceapp.Models.Receipt.OrderFood;
+import com.e.maiplaceapp.Models.Orders.CustomerOrderFoodResponse;
+import com.e.maiplaceapp.Models.Orders.Food;
+import com.e.maiplaceapp.Models.Orders.OrderFood;
 import com.e.maiplaceapp.Services.Service;
 
 import java.util.ArrayList;
@@ -43,12 +44,11 @@ public class ReceiptFragment extends Fragment {
     private TextView txtAddress;
     private TextView txtPhone;
     private TextView txtOrderDate;
-    private TextView txtSubTotal;
     private TextView txtTotal;
+    private TextView txtOrderType;
     private TableLayout tableLayout;
 
 
-    int subTotal = 0;
     int total = 0;
 
 
@@ -76,7 +76,7 @@ public class ReceiptFragment extends Fragment {
         txtAddress = view.findViewById(R.id.customerAddress);
         txtPhone = view.findViewById(R.id.customerPhone);
         txtOrderDate = view.findViewById(R.id.customerOrderDate);
-        txtSubTotal = view.findViewById(R.id.subTotal);
+        txtOrderType = view.findViewById(R.id.customerOrderType);
         txtTotal = view.findViewById(R.id.total);
         txtOrderDate = view.findViewById(R.id.customerOrderDate);
         tableLayout = view.findViewById(R.id.tableview);
@@ -99,18 +99,18 @@ public class ReceiptFragment extends Fragment {
         Retrofit retrofit = Service.RetrofitInstance(getContext());
         IOrder service    = retrofit.create(IOrder.class);
 
-        Call<CustomerReceiptResponse>  customerReceiptResponseCall = service.getReceipt(customer_id, order_no);
-        customerReceiptResponseCall.enqueue(new Callback<CustomerReceiptResponse>() {
+        Call<CustomerOrderFoodResponse>  customerReceiptResponseCall = service.getReceipt(customer_id, order_no);
+        customerReceiptResponseCall.enqueue(new Callback<CustomerOrderFoodResponse>() {
             @Override
-            public void onResponse(Call<CustomerReceiptResponse> call, Response<CustomerReceiptResponse> response) {
+            public void onResponse(Call<CustomerOrderFoodResponse> call, Response<CustomerOrderFoodResponse> response) {
                 if  (response.isSuccessful()) {
-                    CustomerReceiptResponse receiptResponse = response.body();
+                    CustomerOrderFoodResponse receiptResponse = response.body();
 
-                    txtName.setText(String.format("%s %s", receiptResponse.getCustomer().getFirstname(), receiptResponse.getCustomer().getLastname()));
+                    txtName.setText(String.format("%s %s", Strings.capitalize(receiptResponse.getCustomer().getFirstname()), Strings.capitalize(receiptResponse.getCustomer().getLastname())));
                     txtAddress.setText(receiptResponse.getCustomer().getAddress());
                     txtPhone.setText(receiptResponse.getCustomer().getPhoneNumber());
                     txtOrderDate.setText(receiptResponse.getCreatedAt());
-
+                    txtOrderType.setText(Strings.capitalize(receiptResponse.getOrderType()));
 
                     int i = 0;
                     for(Food order : receiptResponse.getFoods()) {
@@ -130,12 +130,11 @@ public class ReceiptFragment extends Fragment {
                             itemTextView.setGravity(Gravity.CENTER);
                             quantityTextView.setText(String.valueOf(order.getQuantity()));
                             quantityTextView.setGravity(Gravity.CENTER);
-                            priceTextView.setText("P" + orderFood.getPrice());
+                            priceTextView.setText("₱" + orderFood.getPrice() + ".00");
                             priceTextView.setGravity(Gravity.LEFT);
-                            totalTextView.setText("P" + (orderFood.getPrice() * order.getQuantity()));
+                            totalTextView.setText(" ₱" + (orderFood.getPrice() * order.getQuantity()) + ".00");
                             totalTextView.setGravity(Gravity.LEFT);
 
-                            subTotal += orderFood.getPrice() * order.getQuantity();
                             total += orderFood.getPrice() * order.getQuantity();
 
                             row.addView(itemTextView);
@@ -147,8 +146,7 @@ public class ReceiptFragment extends Fragment {
 
                     }
 
-                    txtSubTotal.setText("P" + subTotal);
-                    txtTotal.setText("P" + total);
+                    txtTotal.setText("₱" + total + ".00");
 
 
 
@@ -158,7 +156,7 @@ public class ReceiptFragment extends Fragment {
             }
 
             @Override
-            public void onFailure(Call<CustomerReceiptResponse> call, Throwable t) {
+            public void onFailure(Call<CustomerOrderFoodResponse> call, Throwable t) {
                 Toast.makeText(getContext(), t.getMessage(), Toast.LENGTH_SHORT).show();
                 progressDialog.dismiss();
             }

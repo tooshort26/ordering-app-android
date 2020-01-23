@@ -1,8 +1,9 @@
 <resources>
-    <string name="app_name">Mai Place</string>
-<!--    <string name="baseUrl">https://mai-place-api.herokuapp.com/</string>-->
-        <string name="baseUrl">http://192.168.1.4:3030/</string>
+    <string name="app_name">Mai Place Bislig</string>
+    <!--        <string name="baseUrl">https://mai-place-api.herokuapp.com/</string>-->
+    <string name="baseUrl">http://192.168.1.4:3030/</string>
     <string name="serverUrl">https://mai-place.herokuapp.com/</string>
+    <string name="map_api" translatable="false">AIzaSyAInHoruOFZJNBiHP1UEWuX-MjjZmZMJx4</string>
 
 
     <string name="facebook_app_id">803029296878148</string>
@@ -36,5 +37,8 @@
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="profile">Profile</string>
+    <string name="track_your_orders">Track your orders</string>
+    <string name="disclamer">Disclaimer: Only with 5 minutes you are allowed to cancelled the food that you order.</string>
+    <string name="store_locator">Store Locator</string>
 
 </resources>

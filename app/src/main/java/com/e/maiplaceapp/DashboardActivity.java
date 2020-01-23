@@ -1,8 +1,12 @@
 package com.e.maiplaceapp;
 
+import android.app.Notification;
+import android.app.NotificationManager;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
@@ -16,11 +20,12 @@ import android.widget.Toast;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.e.maiplaceapp.API.ICategory;
@@ -32,8 +37,15 @@ import com.e.maiplaceapp.Models.Category.CategoryResponse;
 import com.e.maiplaceapp.Models.CustomerRequest;
 import com.e.maiplaceapp.Models.CustomerResponse;
 import com.e.maiplaceapp.Services.Service;
+import com.github.nkzawa.emitter.Emitter;
+import com.github.nkzawa.socketio.client.IO;
+import com.github.nkzawa.socketio.client.Socket;
 import com.google.android.material.navigation.NavigationView;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -44,6 +56,25 @@ import retrofit2.Retrofit;
 
 public class DashboardActivity extends AppCompatActivity {
 
+    private Socket mSocket;
+   {
+       try {
+           mSocket = IO.socket("http://192.168.1.2:3030");
+       } catch (URISyntaxException e) {
+           Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
+       }
+   }
+
+   private Emitter.Listener onNewMessage = args -> runOnUiThread(() -> {
+       JSONObject data = (JSONObject) args[0];
+       try {
+           displayNotification( data.getString("text"));
+       } catch (JSONException e) {
+           e.printStackTrace();
+       }
+   });
+
+
     private DrawerLayout mDrawer;
     private Toolbar toolbar;
     private NavigationView nvDrawer;
@@ -51,8 +82,7 @@ public class DashboardActivity extends AppCompatActivity {
     private FrameLayout frameLayout;
     private LinearLayout dashboardMainLayout;
     private LinearLayout mainLayout;
-
-
+    NavigationView navigationView;
 
     private Button btnSignout, btnViewMenu;
 
@@ -61,14 +91,11 @@ public class DashboardActivity extends AppCompatActivity {
 
     RecyclerView recyclerView;
     CategoryAdapter categoryAdapter;
-    LinearLayoutManager layoutManager;
+
 
     List<CategoryResponse> categories = new ArrayList<>();
 
-
-
-
-
+    private NotificationManagerCompat notificationManager;
 
 
     @Override
@@ -76,13 +103,14 @@ public class DashboardActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_dashboard);
 
+        String eventName = "customer_notify_" + SharedPref.getSharedPreferenceInt(this,"customer_id",0);
+        mSocket.connect();
+        mSocket.on(eventName, onNewMessage);
+
+        notificationManager = NotificationManagerCompat.from(this);
 
 
         userFromFacebookRegister();
-
-
-
-//        this.requestCategories();
 
 
         // Set a Toolbar to replace the ActionBar.
@@ -113,8 +141,7 @@ public class DashboardActivity extends AppCompatActivity {
 
 
         // Set the header name of navigation to the current user.
-        NavigationView navigationView = findViewById(R.id.nvView);
-        View hView =  navigationView.getHeaderView(0);
+        navigationView = findViewById(R.id.nvView);
 
         // Setup drawer view
         setupDrawerContent(nvDrawer);
@@ -149,11 +176,36 @@ public class DashboardActivity extends AppCompatActivity {
         });*/
 
 
-       this.displayUserNameAndSetEventInNavigation(hView);
+       this.displayUserNameAndSetEventInNavigation();
 
         this.requestCategories();
 
     }
+
+
+    private void displayNotification(String message) {
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            Notification notification = new NotificationCompat.Builder(this, App.CHANNEL_1_ID)
+                    .setSmallIcon(R.drawable.maiplace)
+                    .setContentTitle("Mai Place")
+                    .setContentText(message)
+                    .setPriority(NotificationCompat.PRIORITY_HIGH)
+                    .setCategory(NotificationCompat.CATEGORY_MESSAGE)
+                    .build();
+            notificationManager.notify(1, notification);
+        } else {
+                Notification notification = new NotificationCompat.Builder(this)
+                        .setContentTitle("Mai Place")
+                        .setContentText(message)
+                        .setSmallIcon(R.drawable.maiplace)
+                        .build();
+                NotificationManager notificationManager = (NotificationManager)
+                        getSystemService(Context.NOTIFICATION_SERVICE);
+                notificationManager.notify(2, notification);
+        }
+
+    }
+
 
     public void getSample(int id)
     {
@@ -168,7 +220,8 @@ public class DashboardActivity extends AppCompatActivity {
     }
 
 
-    private void displayUserNameAndSetEventInNavigation(View hView) {
+    public void displayUserNameAndSetEventInNavigation() {
+        View hView =  navigationView.getHeaderView(0);
         TextView navUsername = hView.findViewById(R.id.userName);
         ImageView navImage = hView.findViewById(R.id.userProfile);
         String customerName = Strings.capitalize(SharedPref.getSharedPreferenceString(this,"firstname", "")) + " " + Strings.capitalize(SharedPref.getSharedPreferenceString(this,"lastname", ""));
@@ -270,7 +323,13 @@ public class DashboardActivity extends AppCompatActivity {
    private void requestCategories() {
 
 
-        Retrofit retrofit     = Service.RetrofitInstance(getApplicationContext());
+       progressDialog = new ProgressDialog(this);
+       progressDialog.setMessage("Please wait...");
+       progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+       progressDialog.setCancelable(false);
+       progressDialog.show();
+
+       Retrofit retrofit     = Service.RetrofitInstance(getApplicationContext());
         ICategory service    = retrofit.create(ICategory.class);
 
         Call<List<CategoryResponse>> categoryResponseCall = service.get();
@@ -282,15 +341,15 @@ public class DashboardActivity extends AppCompatActivity {
 
                 categoryAdapter = new CategoryAdapter(categories, getApplicationContext());
                 recyclerView = findViewById(R.id.category_recycler_view);
-                recyclerView.setLayoutManager(new GridLayoutManager(getApplicationContext(), 1));
-//                    layoutManager = new LinearLayoutManager(getContext());
-//                    recyclerView.setLayoutManager(layoutManager);
+                recyclerView.setLayoutManager(new GridLayoutManager(getApplicationContext(), 2));
                 recyclerView.setAdapter(categoryAdapter);
+                progressDialog.dismiss();
 
             }
 
             @Override
             public void onFailure(Call<List<CategoryResponse>> call, Throwable t) {
+                progressDialog.dismiss();
                 Toast.makeText(DashboardActivity.this, t.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
@@ -336,11 +395,13 @@ public class DashboardActivity extends AppCompatActivity {
         Fragment fragment = null;
         Class fragmentClass = CartFragment.class;
         boolean isFragment = false;
+        String title = "Mai Place";
 
         switch(menuItem.getItemId()) {
             case R.id.cart:
                 fragmentClass = CartFragment.class;
                 isFragment = true;
+                title = "Your cart";
                 break;
 
             case R.id.menu:
@@ -349,12 +410,26 @@ public class DashboardActivity extends AppCompatActivity {
                 startActivity(intent1);
                 break;
 
+            case R.id.track_orders:
+                fragmentClass = TrackOrderFragment.class;
+                isFragment = true;
+                title = "Track your orders";
+                break;
+
             case R.id.account_setting:
                 fragmentClass = ProfileFragment.class;
                 isFragment = true;
+                title = "Your profile";
+                break;
+
+            case R.id.store_locator:
+                Intent storeLocatorIntent = new Intent(this, StoreLocatorActivity.class);
+                storeLocatorIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                startActivity(storeLocatorIntent);
                 break;
 
             case R.id.sign_out:
+
                 SharedPref.setSharedPreferenceBoolean(getApplicationContext(),"is_logged", false);
                 SharedPref.setSharedPreferenceInt(getApplicationContext(),"customer_id", 0);
                 Intent intent = new Intent(DashboardActivity.this, LoginActivity.class);
@@ -382,7 +457,7 @@ public class DashboardActivity extends AppCompatActivity {
         // Highlight the selected item has been done by NavigationView
         menuItem.setChecked(true);
         // Set action bar title
-        setTitle(menuItem.getTitle());
+        setTitle(title);
         // Close the navigation drawer
         mDrawer.closeDrawers();
     }
@@ -394,7 +469,5 @@ public class DashboardActivity extends AppCompatActivity {
         }
         return super.onOptionsItemSelected(item);
     }
-
-
 
 }

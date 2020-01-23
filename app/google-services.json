@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "746768993978",
+    "firebase_url": "https://phone-auth-55c71.firebaseio.com",
+    "project_id": "phone-auth-55c71",
+    "storage_bucket": "phone-auth-55c71.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:746768993978:android:0e936fdcdc1e698f67bc83",
+        "android_client_info": {
+          "package_name": "com.e.maiplaceapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "746768993978-bau8fsjg4i88bg2qkbtqs99upsbvglok.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.e.maiplaceapp",
+            "certificate_hash": "d633f6aee6078ac71aa9b5ce38b0b42f69efe0b2"
+          }
+        },
+        {
+          "client_id": "746768993978-jr9gjmg6onp5sasp27uurmpe29talgeg.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCL_An91wyDIFXNlDhv3Uq9Of5L4szuW9g"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "746768993978-jr9gjmg6onp5sasp27uurmpe29talgeg.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

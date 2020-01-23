@@ -5,13 +5,24 @@
         android:id="@+id/menu_top">
         <item
             android:id="@+id/cart"
-            android:icon="@drawable/ic_shopping_cart_black_24dp"
+            android:icon="@drawable/ic_add_shopping_cart_black_24dp"
             android:title="@string/cart" />
 
         <item
             android:id="@+id/menu"
             android:icon="@drawable/ic_room_service_black_24dp"
             android:title="@string/menu" />
+
+        <item
+            android:id="@+id/track_orders"
+            android:icon="@drawable/ic_track_changes_black_24dp"
+            android:title="@string/track_your_orders" />
+
+
+        <item
+            android:id="@+id/store_locator"
+            android:icon="@drawable/ic_map"
+            android:title="@string/store_locator" />
 
     </group>
 

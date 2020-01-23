@@ -8,10 +8,12 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.e.maiplaceapp.API.IUser;
+import com.e.maiplaceapp.Dialogs.VerifyCodeDialog;
 import com.e.maiplaceapp.Helpers.SharedPref;
 import com.e.maiplaceapp.Models.CustomerLoginRequest;
 import com.e.maiplaceapp.Models.CustomerLoginResponse;
@@ -35,8 +37,18 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.Task;
+import com.google.android.gms.tasks.TaskExecutors;
+import com.google.android.material.snackbar.Snackbar;
+import com.google.firebase.FirebaseException;
+import com.google.firebase.auth.AuthCredential;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.GoogleAuthProvider;
+import com.google.firebase.auth.PhoneAuthCredential;
+import com.google.firebase.auth.PhoneAuthProvider;
 
 import org.json.JSONException;
+
+import java.util.concurrent.TimeUnit;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -44,80 +56,61 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 
 
-public class LoginActivity extends AppCompatActivity implements View.OnClickListener {
+public class LoginActivity extends AppCompatActivity implements View.OnClickListener , VerifyCodeDialog.sendInputtedCodeListener{
     private static final String TAG = "LoginActivity";
+    private static final int RC_SIGN_IN = 3000;
 
     private ProgressDialog progressDialog;
     private LoginButton loginButton;
     private CallbackManager callbackManager;
-    private boolean hasExecute = false;
-    SignInButton signInButton;
-
-
-    // This code is for google sign in.
-    private static final int RC_SIGN_IN = 9001;
-
-
-
-//    private Socket mSocket;
-//    {
-//        try {
-//            mSocket = IO.socket("http://192.168.1.4:3030");
-//        } catch (URISyntaxException e) {
-//            Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
-//        }
-//    }
-//
-//    private Emitter.Listener onNewMessage = args -> runOnUiThread(() -> {
-//        JSONObject data = (JSONObject) args[0];
-//        Toast.makeText(this, String.valueOf(data), Toast.LENGTH_LONG).show();
-//    });
-
     private TextView email;
     private TextView password;
+    private GoogleSignInClient mGoogleSignInClient;
+    private FirebaseAuth mAuth;
+    private ProgressDialog phoneProgressDialog;
 
-    GoogleSignInClient mGoogleSignInClient;
+
+    private String verificationId;
+
+
+
+ /*   private Socket mSocket;
+    {
+        try {
+            mSocket = IO.socket("http://192.168.1.2:3030");
+        } catch (URISyntaxException e) {
+            Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private Emitter.Listener onNewMessage = args -> runOnUiThread(() -> {
+        JSONObject data = (JSONObject) args[0];
+        Toast.makeText(this, String.valueOf(data), Toast.LENGTH_LONG).show();
+    });
+*/
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         this.userAlreadyLoggedIn();
+
         setContentView(R.layout.activity_login);
         findViewById(R.id.activityLogin).requestFocus();
+
+
         email = findViewById(R.id.email);
         password = findViewById(R.id.password);
 
-        // Set the dimensions of the sign-in button.
-        signInButton = findViewById(R.id.sign_in_button);
-        signInButton.setSize(SignInButton.SIZE_WIDE);
-
-
-        // Configure sign-in to request the user's ID, email address, and basic
-        // profile. ID and basic profile are included in DEFAULT_SIGN_IN.
-        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                .requestEmail()
-                .build();
-
-        // Build a GoogleSignInClient with the options specified by gso.
-        mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
-
-        // Check for existing Google Sign In account, if the user is already signed in
-        // the GoogleSignInAccount will be non-null.
-        GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(this);
-
-
-
-
-
-        findViewById(R.id.sign_in_button).setOnClickListener(this);
-        findViewById(R.id.sign_out_button).setOnClickListener(this);
-        this.setGoogleSignButtonText(signInButton, "Sign in with google");
-
-
-
-
         loginButton = findViewById(R.id.login_button);
         loginButton.setReadPermissions("email", "public_profile");
+
+        // Set the dimensions of the sign-in button.
+        SignInButton signInButton = findViewById(R.id.sign_in_button);
+        signInButton.setSize(SignInButton.SIZE_STANDARD);
+        setGooglePlusButtonText(signInButton, "Sign in with google");
+
+        findViewById(R.id.sign_in_button).setOnClickListener(this);
 
         callbackManager = CallbackManager.Factory.create();
 
@@ -137,12 +130,198 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                     }
                 });
 
-//        this.forDevelopment();
-        this.isUserLoggedInByGoogle(account);
-
 
         this.isUserLoggedInByFacebook();
 
+        this.normalSignIn();
+
+
+
+
+        findViewById(R.id.signInWithMobile).setOnClickListener(v -> {
+            phoneProgressDialog = new ProgressDialog(this);
+            phoneProgressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+            phoneProgressDialog.setMessage("Please wait...");
+            phoneProgressDialog.show();
+            String phone = "+639504156122";
+            PhoneAuthProvider.getInstance().verifyPhoneNumber(phone, 60, TimeUnit.SECONDS, TaskExecutors.MAIN_THREAD, mCallBack);
+        });
+
+
+        // Configure sign-in to request the user's ID, email address, and basic
+        // profile. ID and basic profile are included in DEFAULT_SIGN_IN.
+        // Configure Google Sign In
+        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestIdToken(getString(R.string.default_web_client_id))
+                .requestEmail()
+                .build();
+
+        // Build a GoogleSignInClient with the options specified by gso.
+        mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
+
+        mAuth = FirebaseAuth.getInstance();
+
+
+        // Check for existing Google Sign In account, if the user is already signed in
+        // the GoogleSignInAccount will be non-null.
+//        GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(this);
+//        updateUI(account);
+
+
+
+        logoutAnySocialMedia();
+
+//        mSocket.connect();
+//        mSocket.on("customer_notify_", onNewMessage);
+
+//        findViewById(R.id.sendData).setOnClickListener(v -> mSocket.emit("testing", "This is a sample text"));
+
+    }
+
+
+    @Override
+    public void applyTexts(String inputtedCode) {
+        PhoneAuthCredential credential = PhoneAuthProvider.getCredential(verificationId, inputtedCode);
+        mAuth.signInWithCredential(credential).addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                Intent intent = new Intent(LoginActivity.this, RegisterActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NO_ANIMATION);
+                startActivity(intent);
+            } else {
+                // If sign in fails, display a message to the user.
+                Toast.makeText(this, task.getException().toString(), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+
+    private PhoneAuthProvider.OnVerificationStateChangedCallbacks mCallBack = new PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
+        @Override
+        public void onCodeSent(@NonNull String sendCode, @NonNull PhoneAuthProvider.ForceResendingToken forceResendingToken) {
+            super.onCodeSent(sendCode, forceResendingToken);
+            phoneProgressDialog.dismiss();
+            VerifyCodeDialog verifyCodeDialog = new VerifyCodeDialog();
+            verifyCodeDialog.show(getSupportFragmentManager(), "verify_code_dialog");
+            verificationId = sendCode;
+        }
+
+        @Override
+        public void onVerificationCompleted(@NonNull PhoneAuthCredential phoneAuthCredential) {
+//            String code = phoneAuthCredential.getSmsCode();
+        }
+
+        @Override
+        public void onVerificationFailed(@NonNull FirebaseException e) {
+            Toast.makeText(LoginActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
+    };
+
+
+
+    protected void setGooglePlusButtonText(SignInButton signInButton, String buttonText) {
+        // Find the TextView that is inside of the SignInButton and set its text
+        for (int i = 0; i < signInButton.getChildCount(); i++) {
+            View v = signInButton.getChildAt(i);
+
+            if (v instanceof TextView) {
+                TextView tv = (TextView) v;
+                tv.setText(buttonText);
+                return;
+            }
+        }
+    }
+
+
+    private void firebaseAuthWithGoogle(GoogleSignInAccount acct) {
+        Log.d(TAG, "firebaseAuthWithGoogle:" + acct.getId());
+
+        progressDialog = new ProgressDialog(this);
+        progressDialog.setMessage("Please wait...");
+        progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        progressDialog.show();
+
+        AuthCredential credential = GoogleAuthProvider.getCredential(acct.getIdToken(), null);
+        mAuth.signInWithCredential(credential)
+                .addOnCompleteListener(this, task -> {
+                    if (task.isSuccessful()) {
+
+
+                        Retrofit retrofit = Service.RetrofitInstance(getApplicationContext());
+                        IUser service    = retrofit.create(IUser.class);
+
+
+                        Call<CustomerResponse> customerResponseCall = service.register(
+                                new CustomerRequest(
+                                        null,
+                                        acct.getGivenName(), acct.getGivenName(),
+                                        acct.getFamilyName(), acct.getEmail(),
+                                        null, null
+                                )
+                        );
+
+                        customerResponseCall.enqueue(new Callback<CustomerResponse>() {
+                            @Override
+                            public void onResponse(Call<CustomerResponse> call, Response<CustomerResponse> response) {
+                                if  (response.isSuccessful()) {
+                                    SharedPref.setSharedPreferenceString(getApplicationContext(),"firstname", acct.getGivenName());
+                                    SharedPref.setSharedPreferenceString(getApplicationContext(),"lastname", acct.getFamilyName());
+
+                                    SharedPref.setSharedPreferenceBoolean(getApplicationContext(),"is_logged", true);
+                                    SharedPref.setSharedPreferenceBoolean(getApplicationContext(),"logout_social_media", true);
+                                    SharedPref.setSharedPreferenceBoolean(getApplicationContext(),"from_third_party", true);
+                                    SharedPref.setSharedPreferenceInt(getApplicationContext(),"customer_id", response.body().getId());
+                                    progressDialog.dismiss();
+                                    Intent intent = new Intent(LoginActivity.this, DashboardActivity.class);
+                                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NO_ANIMATION);
+                                    startActivity(intent);
+                                }
+
+                            }
+
+                            @Override
+                            public void onFailure(Call<CustomerResponse> call, Throwable t) {
+                                progressDialog.dismiss();
+//                                Toast.makeText(LoginActivity.this, t.getMessage(), Toast.LENGTH_SHORT).show();
+                            }
+                        });
+
+                    } else {
+                        progressDialog.dismiss();
+                        // If sign in fails, display a message to the user.
+                        Log.w(TAG, "signInWithCredential:failure", task.getException());
+                        Snackbar.make(findViewById(R.id.activityLogin), "Authentication Failed.", Snackbar.LENGTH_SHORT).show();
+                    }
+
+                });
+    }
+
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        // Result returned from launching the Intent from GoogleSignInApi.getSignInIntent(...);
+        if (requestCode == RC_SIGN_IN) {
+            Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
+            try {
+                // Google Sign In was successful, authenticate with Firebase
+                GoogleSignInAccount account = task.getResult(ApiException.class);
+                firebaseAuthWithGoogle(account);
+            } catch (ApiException e) {
+                // Google Sign In failed, update UI appropriately
+                Log.w(TAG, "Google sign in failed", e);
+                // ...
+            }
+        }
+        else {
+            callbackManager.onActivityResult(requestCode, resultCode, data);
+        }
+
+        super.onActivityResult(requestCode, resultCode, data);
+    }
+
+
+
+
+    private void normalSignIn() {
         findViewById(R.id.btnLogin).setOnClickListener(v -> {
             progressDialog = new ProgressDialog(this);
             progressDialog.setMessage("Please wait...");
@@ -178,29 +357,22 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                 }
             });
 
-
-
         });
-
-        findViewById(R.id.btnRegister).setOnClickListener(v -> {
-            Intent intent = new Intent(this, RegisterActivity.class);
-            startActivity(intent);
-        });
-
-
-        logoutAnySocialMedia();
-
-//        mSocket.connect();
-//        mSocket.on("sample", onNewMessage);
-
-//        findViewById(R.id.sendData).setOnClickListener(v -> mSocket.emit("testing", "This is a sample text"));
-
     }
+
 
     private void logoutAnySocialMedia() {
         if(SharedPref.getSharedPreferenceBoolean(this, "logout_social_media", false)) {
-            mGoogleSignInClient.signOut();
             LoginManager.getInstance().logOut();
+            FirebaseAuth.getInstance().signOut();
+        }
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        if(FirebaseAuth.getInstance().getCurrentUser() != null) {
+            Toast.makeText(this, "There is a user already logged in", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -211,85 +383,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         }
     }
 
-    private void isUserLoggedInByGoogle(GoogleSignInAccount account) {
-        if(account != null) {
-//            Toast.makeText(this, "The user logged in by facebook", Toast.LENGTH_SHORT).show();
-        }
-    }
 
-    protected void setGoogleSignButtonText(SignInButton signInButton, String buttonText) {
-        // Find the TextView that is inside of the SignInButton and set its text
-        for (int i = 0; i < signInButton.getChildCount(); i++) {
-            View v = signInButton.getChildAt(i);
-
-            if (v instanceof TextView) {
-                TextView tv = (TextView) v;
-                tv.setText(buttonText);
-                return;
-            }
-        }
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        if (requestCode == RC_SIGN_IN) {
-            Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
-            handleSignInResult(task);
-        } else {
-            callbackManager.onActivityResult(requestCode, resultCode, data);
-        }
-
-        super.onActivityResult(requestCode, resultCode, data);
-    }
-
-    private void handleSignInResult(Task<GoogleSignInAccount> completedTask) {
-        try {
-            GoogleSignInAccount account = completedTask.getResult(ApiException.class);
-            // Update the UI
-            if(account != null) {
-
-                Retrofit retrofit = Service.RetrofitInstance(this);
-                IUser service    = retrofit.create(IUser.class);
-
-                Call<CustomerResponse> customerResponseCall = service.register(
-                        new CustomerRequest(
-                                null,
-                                account.getGivenName(), null,
-                                account.getFamilyName(), null,
-                                null, null
-                        )
-                );
-
-                customerResponseCall.enqueue(new Callback<CustomerResponse>() {
-                    @Override
-                    public void onResponse(Call<CustomerResponse> call, Response<CustomerResponse> response) {
-                        if  (response.isSuccessful()) {
-                            SharedPref.setSharedPreferenceBoolean(getApplicationContext(),"is_logged", true);
-                            SharedPref.setSharedPreferenceBoolean(getApplicationContext(),"from_third_party", true);
-                            SharedPref.setSharedPreferenceInt(getApplicationContext(),"customer_id", response.body().getId());
-                            Intent intent = new Intent(LoginActivity.this, DashboardActivity.class);
-                            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NO_ANIMATION);
-                            startActivity(intent);
-                        }
-                    }
-
-                    @Override
-                    public void onFailure(Call<CustomerResponse> call, Throwable t) {
-                        Toast.makeText(LoginActivity.this, t.getMessage(), Toast.LENGTH_SHORT).show();
-                    }
-                });
-
-                Log.d("FROM_GOOGLE_SIGN_IN", account.getDisplayName() + " ," + account.getEmail() + ","  + account.getPhotoUrl());
-            }
-
-
-        } catch (ApiException e) {
-            e.printStackTrace();
-            Log.d("FROM_GOOGLE_SIGN_IN", "Sign in result:failed code = " + e.getStatusCode());
-            // Update the ui with null values.
-        }
-
-    }
 
     AccessTokenTracker tokenTracker = new AccessTokenTracker() {
 
@@ -339,35 +433,24 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         startActivity(intent);
     }
 
-    private void forDevelopment() {
-        email.setText("christophervistal26@gmail.com");
-        password.setText("oop");
-    }
-
-
     private void signIn() {
         Intent signInIntent = mGoogleSignInClient.getSignInIntent();
         startActivityForResult(signInIntent, RC_SIGN_IN);
     }
 
-    private void signOut() {
-        mGoogleSignInClient.signOut()
-                .addOnCompleteListener(this, task -> Toast.makeText(LoginActivity.this, "Google Sign out", Toast.LENGTH_SHORT).show());
-    }
+
+
 
     @Override
     public void onClick(View v) {
         // For google sign in.
         switch(v.getId()) {
-            case R.id.sign_in_button:
+            case  R.id.sign_in_button :
                 signIn();
-                break;
-
-            case R.id.sign_out_button:
-                signOut();
                 break;
         }
     }
+
 
 
 }

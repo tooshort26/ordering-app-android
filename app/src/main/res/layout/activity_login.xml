@@ -85,7 +85,21 @@
                 android:textStyle="bold"
                 android:paddingTop="10dp"
                 android:paddingBottom="10dp"
-                android:text="SIGN IN"/>
+                android:textAllCaps="false"
+                android:text="Sign in"/>
+
+            <Button
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/signInWithMobile"
+                android:layout_gravity="center"
+                android:background="@color/colorPrimary"
+                android:textColor="#FFFFFF"
+                android:fontFamily="@font/product_sans"
+                android:layout_marginTop="20dp"
+                android:textStyle="bold"
+                android:textAllCaps="false"
+                android:text="Sign in with your phone"/>
 
 
             <com.facebook.login.widget.LoginButton
@@ -102,31 +116,9 @@
 
             <com.google.android.gms.common.SignInButton
                 android:id="@+id/sign_in_button"
-                android:text="Login with facebook"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />
 
-
-            <Button
-                android:visibility="gone"
-                android:id="@+id/sign_out_button"
-                android:text="Google Sign out"
-                style="@style/FacebookLoginButton"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"/>
-
-
-            <Button
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:id="@+id/btnRegister"
-                android:layout_gravity="center"
-                android:background="@color/colorPrimary"
-                android:textColor="#FFFFFF"
-                android:fontFamily="@font/product_sans"
-                android:layout_marginTop="20dp"
-                android:textStyle="bold"
-                android:text="SIGN UP"/>
 
 
         </LinearLayout>

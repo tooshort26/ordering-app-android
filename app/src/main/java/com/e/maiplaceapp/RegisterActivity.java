@@ -79,7 +79,7 @@ public class RegisterActivity extends AppCompatActivity {
          lastName = findViewById(R.id.lastName);
          phoneNumber = findViewById(R.id.phoneNumber);
          address = findViewById(R.id.address);
-         btnRegister = findViewById(R.id.btnRegister);
+         btnRegister = findViewById(R.id.signInWithMobile);
 
 
 

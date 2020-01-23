@@ -62,12 +62,16 @@ public class ProfileFragment extends Fragment {
             customerProfileResponseCall.enqueue(new Callback<CustomerProfileResponse>() {
                 @Override
                 public void onResponse(Call<CustomerProfileResponse> call, Response<CustomerProfileResponse> response) {
-                    CustomerProfileResponse profileResponse = response.body();
-                    email.setText(profileResponse.getEmail());
-                    firstName.setText(profileResponse.getFirstname());
-                    lastName.setText(profileResponse.getLastname());
-                    address.setText(profileResponse.getAddress());
-                    phoneNumber.setText(profileResponse.getPhoneNumber());
+                    if(response.isSuccessful()) {
+                        CustomerProfileResponse profileResponse = response.body();
+                        String firstname = SharedPref.getSharedPreferenceString(getContext(),"firstname", null);
+                        String lastname = SharedPref.getSharedPreferenceString(getContext(),"lastname", null);
+                        firstName.setText(firstname);
+                        lastName.setText(lastname);
+                        email.setText(profileResponse.getEmail());
+                        address.setText(profileResponse.getAddress());
+                        phoneNumber.setText(profileResponse.getPhoneNumber());
+                    }
                 }
 
                 @Override
@@ -85,8 +89,8 @@ public class ProfileFragment extends Fragment {
             IUser service1 = retrofit1.create(IUser.class);
 
             CustomerUpdateProfileRequest customerUpdateProfileRequest = new CustomerUpdateProfileRequest();
-            customerUpdateProfileRequest.setFirstname(firstName.getText().toString());
-            customerUpdateProfileRequest.setLastname(lastName.getText().toString());
+            SharedPref.setSharedPreferenceString(getContext(),"firstname", firstName.getText().toString());
+            SharedPref.setSharedPreferenceString(getContext(),"lastname", lastName.getText().toString());
             customerUpdateProfileRequest.setEmail(email.getText().toString());
             customerUpdateProfileRequest.setAddress(address.getText().toString());
             customerUpdateProfileRequest.setPhone_number(phoneNumber.getText().toString());
@@ -98,6 +102,7 @@ public class ProfileFragment extends Fragment {
                 @Override
                 public void onResponse(Call<CustomerUpdateProfileResponse> call, Response<CustomerUpdateProfileResponse> response) {
                     if(response.isSuccessful()) {
+                        ((DashboardActivity)getActivity()).displayUserNameAndSetEventInNavigation();
                         Toast.makeText(getContext(), "Successfully update your profile.", Toast.LENGTH_SHORT).show();
                     }
                 }
