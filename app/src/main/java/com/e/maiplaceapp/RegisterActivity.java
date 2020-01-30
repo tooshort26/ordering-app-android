@@ -37,7 +37,6 @@ import com.google.android.gms.location.LocationServices;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Locale;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -82,26 +81,26 @@ public class RegisterActivity extends AppCompatActivity {
          btnRegister = findViewById(R.id.signInWithMobile);
 
 
-
         // Initialize Form Validator
         mAwesomeValidation = new AwesomeValidation(COLORATION);
         mAwesomeValidation.setColor(Color.YELLOW);  // optional, default color is RED if not set
-        mAwesomeValidation.addValidation(this, R.id.firstName, "[A-Za-z ñ]+", R.string.err_firstname);
-        mAwesomeValidation.addValidation(this, R.id.middleName, "[A-Za-z ñ]+", R.string.err_middlename);
-        mAwesomeValidation.addValidation(this, R.id.lastName, "[A-Za-z ñ]+", R.string.err_lastname);
         mAwesomeValidation.addValidation(this, R.id.email, android.util.Patterns.EMAIL_ADDRESS, R.string.err_email);
+        mAwesomeValidation.addValidation(this, R.id.firstName, "[A-Za-z ñ]+", R.string.firstName);
+        mAwesomeValidation.addValidation(this, R.id.lastName, "[A-Za-z ñ]+", R.string.lastName);
+        mAwesomeValidation.addValidation(this, R.id.address, "[A-Za-z ñ]+", R.string.err_address);
+        String regexPassword = "(?=.*[a-z])(?=.*[A-Z])(?=.*[\\d])(?=.*[~`!@#\\$%\\^&\\*\\(\\)\\-_\\+=\\{\\}\\[\\]\\|\\;:\"<>,./\\?]).{8,}";
+        mAwesomeValidation.addValidation(this, R.id.password, regexPassword, R.string.err_password);
         mAwesomeValidation.addValidation(this, R.id.phoneNumber, "(09|\\+639)\\d{9}", R.string.err_phone_number);
 
-//        String regexPassword = "(?=.*[a-z])(?=.*[A-Z])(?=.*[\\d])(?=.*[~`!@#\\$%\\^&\\*\\(\\)\\-_\\+=\\{\\}\\[\\]\\|\\;:\"<>,./\\?]).{8,}";
-//        mAwesomeValidation.addValidation(this, R.id.password, regexPassword, R.string.err_password);
+         phoneNumber.setText(SharedPref.getSharedPreferenceString(this,"registered_phone_number", ""));
 
 
-
+/*
         geocoder = new Geocoder(this, Locale.getDefault());
 
-        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);*/
 
-        getLastLocation();
+//        getLastLocation();
 
         btnRegister.setOnClickListener(v -> {
             if  (mAwesomeValidation.validate()) {
@@ -123,43 +122,46 @@ public class RegisterActivity extends AppCompatActivity {
     }
 
     private void registerUser() {
-        progressDialog = new ProgressDialog(this);
-        progressDialog.setMessage("Please wait...");
-        progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-        progressDialog.show();
+        if  (mAwesomeValidation.validate()) {
+            progressDialog = new ProgressDialog(this);
+            progressDialog.setMessage("Please wait...");
+            progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+            progressDialog.show();
 
-        Retrofit retrofit = Service.RetrofitInstance(this);
-        IUser service    = retrofit.create(IUser.class);
+            Retrofit retrofit = Service.RetrofitInstance(this);
+            IUser service    = retrofit.create(IUser.class);
 
-        Call<CustomerResponse> customerResponseCall = service.register(
-                new CustomerRequest(
-                         password.getText().toString(),
-                        firstName.getText().toString(), middleName.getText().toString(),
-                        lastName.getText().toString(), email.getText().toString(),
-                        phoneNumber.getText().toString(), address.getText().toString()
-                )
-        );
+            Call<CustomerResponse> customerResponseCall = service.register(
+                    new CustomerRequest(
+                            password.getText().toString(),
+                            firstName.getText().toString(), middleName.getText().toString(),
+                            lastName.getText().toString(), email.getText().toString(),
+                            phoneNumber.getText().toString(), address.getText().toString()
+                    )
+            );
 
-        customerResponseCall.enqueue(new Callback<CustomerResponse>() {
-            @Override
-            public void onResponse(Call<CustomerResponse> call, Response<CustomerResponse> response) {
-                if  (response.isSuccessful()) {
-                    progressDialog.dismiss();
-                    Toast.makeText(RegisterActivity.this, response.body().getMessage(), Toast.LENGTH_SHORT).show();
-                    SharedPref.setSharedPreferenceBoolean(getApplicationContext(),"is_logged", true);
-                    SharedPref.setSharedPreferenceInt(getApplicationContext(),"customer_id", response.body().getId());
-                    Intent intent = new Intent(RegisterActivity.this, DashboardActivity.class);
-                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NO_ANIMATION);
-                    startActivity(intent);
+            customerResponseCall.enqueue(new Callback<CustomerResponse>() {
+                @Override
+                public void onResponse(Call<CustomerResponse> call, Response<CustomerResponse> response) {
+                    if  (response.isSuccessful()) {
+                        progressDialog.dismiss();
+                        Toast.makeText(RegisterActivity.this, response.body().getMessage(), Toast.LENGTH_SHORT).show();
+                        SharedPref.setSharedPreferenceBoolean(getApplicationContext(),"is_logged", true);
+                        SharedPref.setSharedPreferenceInt(getApplicationContext(),"customer_id", response.body().getId());
+                        Intent intent = new Intent(RegisterActivity.this, DashboardActivity.class);
+                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NO_ANIMATION);
+                        startActivity(intent);
+                    }
                 }
-            }
 
-            @Override
-            public void onFailure(Call<CustomerResponse> call, Throwable t) {
-                progressDialog.dismiss();
-                Toast.makeText(RegisterActivity.this, t.getMessage(), Toast.LENGTH_SHORT).show();
-            }
-        });
+                @Override
+                public void onFailure(Call<CustomerResponse> call, Throwable t) {
+                    progressDialog.dismiss();
+                    Toast.makeText(RegisterActivity.this, t.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+            });
+
+        }
 
     }
 

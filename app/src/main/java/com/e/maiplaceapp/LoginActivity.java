@@ -13,6 +13,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.e.maiplaceapp.API.IUser;
+import com.e.maiplaceapp.Dialogs.EnterPhoneNumberDialog;
 import com.e.maiplaceapp.Dialogs.VerifyCodeDialog;
 import com.e.maiplaceapp.Helpers.SharedPref;
 import com.e.maiplaceapp.Models.CustomerLoginRequest;
@@ -56,7 +57,7 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 
 
-public class LoginActivity extends AppCompatActivity implements View.OnClickListener , VerifyCodeDialog.sendInputtedCodeListener{
+public class LoginActivity extends AppCompatActivity implements View.OnClickListener , VerifyCodeDialog.sendInputtedCodeListener, EnterPhoneNumberDialog.sendInputPhoneNumber {
     private static final String TAG = "LoginActivity";
     private static final int RC_SIGN_IN = 3000;
 
@@ -71,6 +72,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
 
     private String verificationId;
+    private String phoneNumber;
 
 
 
@@ -92,6 +94,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         this.userAlreadyLoggedIn();
 
@@ -139,12 +142,10 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
 
         findViewById(R.id.signInWithMobile).setOnClickListener(v -> {
-            phoneProgressDialog = new ProgressDialog(this);
-            phoneProgressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-            phoneProgressDialog.setMessage("Please wait...");
-            phoneProgressDialog.show();
-            String phone = "+639504156122";
-            PhoneAuthProvider.getInstance().verifyPhoneNumber(phone, 60, TimeUnit.SECONDS, TaskExecutors.MAIN_THREAD, mCallBack);
+
+            EnterPhoneNumberDialog enterPhoneNumberDialog = new EnterPhoneNumberDialog();
+            enterPhoneNumberDialog.show(getSupportFragmentManager(), "enter_phone_number_dialog");
+
         });
 
 
@@ -178,6 +179,24 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
     }
 
+    @Override
+    public void applyPhoneNumber(String phone_number) {
+
+        phoneProgressDialog = new ProgressDialog(this);
+        phoneProgressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        phoneProgressDialog.setCancelable(false);
+        phoneProgressDialog.setMessage("Please wait...");
+        phoneProgressDialog.show();
+        phoneNumber = phone_number;
+
+
+//        Toast.makeText(this, phone_number, Toast.LENGTH_SHORT).show();
+//        String phone = "+639504156122";
+
+         PhoneAuthProvider.getInstance().verifyPhoneNumber(phone_number, 60, TimeUnit.SECONDS, TaskExecutors.MAIN_THREAD, mCallBack);
+
+    }
+
 
     @Override
     public void applyTexts(String inputtedCode) {
@@ -203,6 +222,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
             VerifyCodeDialog verifyCodeDialog = new VerifyCodeDialog();
             verifyCodeDialog.show(getSupportFragmentManager(), "verify_code_dialog");
             verificationId = sendCode;
+            SharedPref.setSharedPreferenceString(getApplicationContext(),"registered_phone_number", phoneNumber);
         }
 
         @Override
@@ -365,6 +385,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         if(SharedPref.getSharedPreferenceBoolean(this, "logout_social_media", false)) {
             LoginManager.getInstance().logOut();
             FirebaseAuth.getInstance().signOut();
+
         }
     }
 

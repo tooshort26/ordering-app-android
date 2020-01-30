@@ -142,78 +142,100 @@
         android:textSize="18sp"
         android:text="Order Summary" />
 
-
-    <TableLayout
-        android:layout_below="@id/txtLabelOrderSummary"
-        android:id="@+id/tableview"
-        android:layout_width="match_parent"
+    <ScrollView
+        android:id="@+id/layout"
         android:layout_height="wrap_content"
-        android:padding="13dp"
-        android:background="@drawable/border"
-        android:stretchColumns="1">
+        android:scrollbars="horizontal|vertical"
+        android:layout_width="match_parent"
+        android:layout_below="@id/txtLabelOrderSummary"
+        android:scrollbarStyle="outsideInset"
+        android:fillViewport="true">
 
-        <TableRow>
-                <TextView
-                    android:text="Items"
-                    android:gravity="center"
-                    android:fontFamily="@font/product_sans"
-                    android:textStyle="bold"
-                    android:padding="3dip" />
-                <TextView
-                    android:text="Quantity"
-                    android:fontFamily="@font/product_sans"
-                    android:textStyle="bold"
-                    android:gravity="center"
-                    android:padding="3dip" />
+        <HorizontalScrollView
+            android:layout_height="wrap_content"
+            android:scrollbars="horizontal|vertical"
+            android:layout_width="wrap_content"
+            android:layout_marginTop="5dip">
 
-                <TextView
-                    android:text="Price"
-                    android:fontFamily="@font/product_sans"
-                    android:textStyle="bold"
-                    android:gravity="left"
-                    android:padding="3dip" />
-
-
-                <TextView
-                    android:text="Total"
-                    android:fontFamily="@font/product_sans"
-                    android:textStyle="bold"
-                    android:gravity="right"
-                    android:padding="3dip" />
-
-        </TableRow>
-
-
-
-
-        <View
-            android:layout_marginTop="10dp"
-            android:layout_marginBottom="5dp"
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="#9b9b9b"/>
-
-
-        <TableRow>
-
-            <TextView
-                android:text="Total"
-                android:gravity="left"
-                android:fontFamily="@font/product_sans"
-                android:textStyle="bold"
-                android:padding="3dip" />
-
-            <TextView
-                android:id="@+id/total"
+            <TableLayout
+                android:id="@+id/tableview"
                 android:layout_width="match_parent"
-                android:text=""
-                android:fontFamily="@font/product_sans"
-                android:textStyle="bold"
-                android:gravity="right"
-                android:padding="3dip" />
-        </TableRow>
+                android:layout_height="wrap_content"
+                android:padding="13dp"
+                android:background="@drawable/border"
+                android:stretchColumns="1">
 
-    </TableLayout>
+                <TableRow>
+                    <TextView
+                        android:text="Items"
+                        android:gravity="center"
+                        android:fontFamily="@font/product_sans"
+                        android:textStyle="bold"
+                        android:padding="3dip" />
+                    <TextView
+                        android:text="Quantity"
+                        android:fontFamily="@font/product_sans"
+                        android:textStyle="bold"
+                        android:gravity="center"
+                        android:padding="3dip" />
+
+                    <TextView
+                        android:text="Price"
+                        android:fontFamily="@font/product_sans"
+                        android:textStyle="bold"
+                        android:gravity="left"
+                        android:padding="3dip" />
+
+
+                    <TextView
+                        android:text="Total"
+                        android:fontFamily="@font/product_sans"
+                        android:textStyle="bold"
+                        android:gravity="right"
+                        android:padding="3dip" />
+
+                </TableRow>
+
+
+
+
+                <View
+                    android:layout_marginTop="10dp"
+                    android:layout_marginBottom="5dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="#9b9b9b"/>
+
+
+                <TableRow>
+
+                    <TextView
+                        android:text="Total"
+                        android:gravity="left"
+                        android:fontFamily="@font/product_sans"
+                        android:textStyle="bold"
+                        android:padding="3dip" />
+
+                    <TextView
+                        android:id="@+id/total"
+                        android:layout_width="match_parent"
+                        android:text=""
+                        android:fontFamily="@font/product_sans"
+                        android:textStyle="bold"
+                        android:gravity="right"
+                        android:padding="3dip" />
+                </TableRow>
+
+            </TableLayout>
+
+
+
+        </HorizontalScrollView>
+
+
+    </ScrollView>
+
+
 
 
 

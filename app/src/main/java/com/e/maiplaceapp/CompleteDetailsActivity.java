@@ -1,12 +1,14 @@
 package com.e.maiplaceapp;
 
 import android.app.ProgressDialog;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.widget.EditText;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.basgeekball.awesomevalidation.AwesomeValidation;
 import com.e.maiplaceapp.API.IUser;
 import com.e.maiplaceapp.Helpers.SharedPref;
 import com.e.maiplaceapp.Models.ThirdPartyLogin.CustomerUpdateProfileRequest;
@@ -18,9 +20,13 @@ import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 
+import static com.basgeekball.awesomevalidation.ValidationStyle.COLORATION;
+
 public class CompleteDetailsActivity extends AppCompatActivity {
 
     ProgressDialog progressDialog;
+    AwesomeValidation mAwesomeValidation;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -29,11 +35,20 @@ public class CompleteDetailsActivity extends AppCompatActivity {
         EditText address = findViewById(R.id.editTextAddress);
         EditText email = findViewById(R.id.editTextEmail);
 
+        // Initialize Form Validator
+        mAwesomeValidation = new AwesomeValidation(COLORATION);
+        mAwesomeValidation.setColor(Color.YELLOW);  // optional, default color is RED if not set
+        mAwesomeValidation.addValidation(this, R.id.email, android.util.Patterns.EMAIL_ADDRESS, R.string.err_email);
+        mAwesomeValidation.addValidation(this, R.id.address, "[A-Za-z ñ]+", R.string.err_address);
+        mAwesomeValidation.addValidation(this, R.id.phoneNumber, "(09|\\+639)\\d{9}", R.string.err_phone_number);
+
+
+
         int customerId = SharedPref.getSharedPreferenceInt(this,"customer_id", 0);
 
 
         findViewById(R.id.btnSubmit).setOnClickListener(v -> {
-            if(customerId != 0) {
+            if(customerId != 0 && mAwesomeValidation.validate()) {
                 progressDialog = new ProgressDialog(this);
                 progressDialog.setMessage("Please wait...");
                 progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
@@ -72,5 +87,10 @@ public class CompleteDetailsActivity extends AppCompatActivity {
             }
 
         });
+    }
+
+    @Override
+    public void onBackPressed() {
+    // Remove the super call method so the user can't back to the previous intent if not filling all fields.
     }
 }

@@ -16,7 +16,7 @@
         <item
             android:id="@+id/track_orders"
             android:icon="@drawable/ic_track_changes_black_24dp"
-            android:title="@string/track_your_orders" />
+            android:title="@string/my_orders" />
 
 
         <item

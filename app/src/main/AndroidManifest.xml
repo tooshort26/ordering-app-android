@@ -7,6 +7,7 @@
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 
+
     <application
         android:name=".App"
         android:allowBackup="true"
@@ -15,7 +16,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".StoreLocatorActivity"></activity>
+
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"
@@ -25,6 +26,7 @@
             android:value="@string/facebook_app_id"
             tools:replace="android:value" />
 
+        <activity android:name=".StoreLocatorActivity"></activity>
         <activity android:name=".CompleteDetailsActivity" />
         <activity android:name=".RegisterActivity" />
         <activity android:name=".DashboardActivity" />

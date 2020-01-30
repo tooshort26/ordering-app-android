@@ -1,9 +1,9 @@
 <resources>
     <string name="app_name">Mai Place Bislig</string>
-    <!--        <string name="baseUrl">https://mai-place-api.herokuapp.com/</string>-->
-    <string name="baseUrl">http://192.168.1.4:3030/</string>
+    <string name="baseUrl">https://mai-place-api.herokuapp.com/</string>
+<!--    <string name="baseUrl">http://192.168.1.8:3030/</string>-->
     <string name="serverUrl">https://mai-place.herokuapp.com/</string>
-    <string name="map_api" translatable="false">AIzaSyAInHoruOFZJNBiHP1UEWuX-MjjZmZMJx4</string>
+    <string name="map_api" translatable="false">AIzaSyAsuesfrrJllPyloO8nt7KDw1D7ZqfiALY</string>
 
 
     <string name="facebook_app_id">803029296878148</string>
@@ -15,7 +15,7 @@
     <string name="drawer_close">Close navigation drawer</string>
 
 
-    <string name="login_message">Welcome to Mai-Place</string>
+    <string name="login_message">Welcome to Mai-Place Bislig</string>
 
     <string name="register_message">For you to start using this application you must fill those fields</string>
     <string name="create_an_account">Create an account</string>
@@ -37,8 +37,11 @@
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="profile">Profile</string>
-    <string name="track_your_orders">Track your orders</string>
-    <string name="disclamer">Disclaimer: Only with 5 minutes you are allowed to cancelled the food that you order.</string>
+    <string name="my_orders">My Orders</string>
+    <string name="disclamer">Disclaimer: Only with 3 minutes you are allowed to cancelled the food that you order.</string>
     <string name="store_locator">Store Locator</string>
+    <string name="firstName">Please check your firstname</string>
+    <string name="lastName">Please check your lastname</string>
+    <string name="err_address">Please check your address</string>
 
 </resources>

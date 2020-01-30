@@ -78,8 +78,8 @@ public class TrackOrderAdapter extends RecyclerView.Adapter<TrackOrderAdapter.Tr
         try {
             Date date = new Date();
             Date d = dateFormat.parse(orderFoodResponse.getCreatedAt());
-            if((date.getMinutes() - d.getMinutes()) > 5) {
-                Log.d(TAG, "onBindViewHolder: " + " More than 5 minutes");
+            if((date.getMinutes() - d.getMinutes()) > 3) {
+                Log.d(TAG, "onBindViewHolder: " + " More than 3 minutes");
                 holder.cancelOrder.setEnabled(false);
                 holder.cancelOrder.setBackgroundColor(Color.parseColor("#E9E9E9"));
                 holder.cancelOrder.setTextColor(Color.parseColor("#000000"));
