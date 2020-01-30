@@ -38,9 +38,9 @@ public class CompleteDetailsActivity extends AppCompatActivity {
         // Initialize Form Validator
         mAwesomeValidation = new AwesomeValidation(COLORATION);
         mAwesomeValidation.setColor(Color.YELLOW);  // optional, default color is RED if not set
-        mAwesomeValidation.addValidation(this, R.id.email, android.util.Patterns.EMAIL_ADDRESS, R.string.err_email);
-        mAwesomeValidation.addValidation(this, R.id.address, "[A-Za-z ñ]+", R.string.err_address);
-        mAwesomeValidation.addValidation(this, R.id.phoneNumber, "(09|\\+639)\\d{9}", R.string.err_phone_number);
+        mAwesomeValidation.addValidation(this, R.id.editTextEmail, android.util.Patterns.EMAIL_ADDRESS, R.string.err_email);
+        mAwesomeValidation.addValidation(this, R.id.editTextAddress, "[A-Za-z ñ]+", R.string.err_address);
+        mAwesomeValidation.addValidation(this, R.id.editTextPhoneNumber, "(09|\\+639)\\d{9}", R.string.err_phone_number);
 
 
 

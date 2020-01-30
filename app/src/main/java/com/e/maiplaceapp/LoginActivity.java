@@ -392,9 +392,9 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     @Override
     protected void onStart() {
         super.onStart();
-        if(FirebaseAuth.getInstance().getCurrentUser() != null) {
+        /*if(FirebaseAuth.getInstance().getCurrentUser() != null) {
             Toast.makeText(this, "There is a user already logged in", Toast.LENGTH_SHORT).show();
-        }
+        }*/
     }
 
     private void isUserLoggedInByFacebook() {
