@@ -18,8 +18,6 @@ import com.e.maiplaceapp.Dialogs.VerifyCodeDialog;
 import com.e.maiplaceapp.Helpers.SharedPref;
 import com.e.maiplaceapp.Models.CustomerLoginRequest;
 import com.e.maiplaceapp.Models.CustomerLoginResponse;
-import com.e.maiplaceapp.Models.CustomerRequest;
-import com.e.maiplaceapp.Models.CustomerResponse;
 import com.e.maiplaceapp.Services.Service;
 import com.facebook.AccessToken;
 import com.facebook.AccessTokenTracker;
@@ -27,7 +25,6 @@ import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
 import com.facebook.GraphRequest;
-import com.facebook.Profile;
 import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
@@ -265,8 +262,20 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                 .addOnCompleteListener(this, task -> {
                     if (task.isSuccessful()) {
 
+                        SharedPref.setSharedPreferenceString(getApplicationContext(),"firstname", acct.getGivenName());
+                        SharedPref.setSharedPreferenceString(getApplicationContext(),"lastname", acct.getFamilyName());
 
-                        Retrofit retrofit = Service.RetrofitInstance(getApplicationContext());
+                        SharedPref.setSharedPreferenceBoolean(getApplicationContext(),"is_logged", true);
+                        SharedPref.setSharedPreferenceBoolean(getApplicationContext(),"logout_social_media", true);
+                        SharedPref.setSharedPreferenceBoolean(getApplicationContext(),"from_third_party", true);
+
+                        progressDialog.dismiss();
+                        Intent intent = new Intent(LoginActivity.this, DashboardActivity.class);
+                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NO_ANIMATION);
+                        startActivity(intent);
+
+
+                        /*Retrofit retrofit = Service.RetrofitInstance(getApplicationContext());
                         IUser service    = retrofit.create(IUser.class);
 
 
@@ -283,17 +292,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                             @Override
                             public void onResponse(Call<CustomerResponse> call, Response<CustomerResponse> response) {
                                 if  (response.isSuccessful()) {
-                                    SharedPref.setSharedPreferenceString(getApplicationContext(),"firstname", acct.getGivenName());
-                                    SharedPref.setSharedPreferenceString(getApplicationContext(),"lastname", acct.getFamilyName());
 
-                                    SharedPref.setSharedPreferenceBoolean(getApplicationContext(),"is_logged", true);
-                                    SharedPref.setSharedPreferenceBoolean(getApplicationContext(),"logout_social_media", true);
-                                    SharedPref.setSharedPreferenceBoolean(getApplicationContext(),"from_third_party", true);
-                                    SharedPref.setSharedPreferenceInt(getApplicationContext(),"customer_id", response.body().getId());
-                                    progressDialog.dismiss();
-                                    Intent intent = new Intent(LoginActivity.this, DashboardActivity.class);
-                                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NO_ANIMATION);
-                                    startActivity(intent);
                                 }
 
                             }
@@ -303,7 +302,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                                 progressDialog.dismiss();
 //                                Toast.makeText(LoginActivity.this, t.getMessage(), Toast.LENGTH_SHORT).show();
                             }
-                        });
+                        });*/
 
                     } else {
                         progressDialog.dismiss();
@@ -385,7 +384,6 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         if(SharedPref.getSharedPreferenceBoolean(this, "logout_social_media", false)) {
             LoginManager.getInstance().logOut();
             FirebaseAuth.getInstance().signOut();
-
         }
     }
 
@@ -398,10 +396,10 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     }
 
     private void isUserLoggedInByFacebook() {
-        Profile profile = Profile.getCurrentProfile();
+       /* Profile profile = Profile.getCurrentProfile();
         if(profile != null) {
-//            Toast.makeText(this, "The user logged in by facebook", Toast.LENGTH_SHORT).show();
-        }
+
+        }*/
     }
 
 
@@ -427,10 +425,12 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
                 SharedPref.setSharedPreferenceString(getApplicationContext(),"firstname", first_name);
                 SharedPref.setSharedPreferenceString(getApplicationContext(),"lastname", last_name);
-                SharedPref.setSharedPreferenceBoolean(getApplicationContext(),"from_facebook_login", true);
-                Intent intent = new Intent(LoginActivity.this, DashboardActivity.class);
-                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NO_ANIMATION);
-                startActivity(intent);
+
+                if(SharedPref.getSharedPreferenceInt(getApplicationContext(),"customer_id", 0) == 0) {
+                    Intent intent = new Intent(LoginActivity.this, DashboardActivity.class);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NO_ANIMATION);
+                    startActivity(intent);
+                }
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -443,9 +443,9 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     }
 
     private void userAlreadyLoggedIn() {
-        if (SharedPref.getSharedPreferenceBoolean(getApplicationContext(),"is_logged", false)) {
-            proceedToDashboard();
-        }
+            if (SharedPref.getSharedPreferenceBoolean(getApplicationContext(),"is_logged", false)) {
+                proceedToDashboard();
+            }
     }
 
     private void proceedToDashboard() {

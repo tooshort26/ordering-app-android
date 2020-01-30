@@ -39,16 +39,14 @@ public class CompleteDetailsActivity extends AppCompatActivity {
         mAwesomeValidation = new AwesomeValidation(COLORATION);
         mAwesomeValidation.setColor(Color.YELLOW);  // optional, default color is RED if not set
         mAwesomeValidation.addValidation(this, R.id.editTextEmail, android.util.Patterns.EMAIL_ADDRESS, R.string.err_email);
-        mAwesomeValidation.addValidation(this, R.id.editTextAddress, "[A-Za-z ñ]+", R.string.err_address);
         mAwesomeValidation.addValidation(this, R.id.editTextPhoneNumber, "(09|\\+639)\\d{9}", R.string.err_phone_number);
 
 
 
-        int customerId = SharedPref.getSharedPreferenceInt(this,"customer_id", 0);
-
+        int customerId =  getIntent().getIntExtra("customer_id",0);
 
         findViewById(R.id.btnSubmit).setOnClickListener(v -> {
-            if(customerId != 0 && mAwesomeValidation.validate()) {
+             if(mAwesomeValidation.validate() && !address.getText().toString().isEmpty()) {
                 progressDialog = new ProgressDialog(this);
                 progressDialog.setMessage("Please wait...");
                 progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
@@ -72,8 +70,8 @@ public class CompleteDetailsActivity extends AppCompatActivity {
                             progressDialog.dismiss();
                             Toast.makeText(CompleteDetailsActivity.this, "Successfully update your profile.", Toast.LENGTH_SHORT).show();
                             SharedPref.setSharedPreferenceBoolean(getApplicationContext(),"from_third_party", false);
-                            SharedPref.setSharedPreferenceBoolean(getApplicationContext(),"from_facebook_login", false);
                             SharedPref.setSharedPreferenceBoolean(getApplicationContext(),"logout_social_media", true);
+                            SharedPref.setSharedPreferenceInt(getApplicationContext(),"customer_id", response.body().getId());
                             finish();
                         }
                     }
@@ -84,7 +82,11 @@ public class CompleteDetailsActivity extends AppCompatActivity {
                         Toast.makeText(CompleteDetailsActivity.this, t.getMessage(), Toast.LENGTH_SHORT).show();
                     }
                 });
-            }
+            } else {
+                 if(address.getText().toString().isEmpty() || address.getText().toString().trim().length() <= 0) {
+                     address.setError("Please check your address");
+                 }
+             }
 
         });
     }

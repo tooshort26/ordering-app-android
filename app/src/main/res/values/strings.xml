@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">Mai Place Bislig</string>
     <string name="baseUrl">https://mai-place-api.herokuapp.com/</string>
-<!--    <string name="baseUrl">http://192.168.1.8:3030/</string>-->
+<!--    <string name="baseUrl">http://192.168.1.3:3030/</string>-->
     <string name="serverUrl">https://mai-place.herokuapp.com/</string>
     <string name="map_api" translatable="false">AIzaSyAsuesfrrJllPyloO8nt7KDw1D7ZqfiALY</string>
 

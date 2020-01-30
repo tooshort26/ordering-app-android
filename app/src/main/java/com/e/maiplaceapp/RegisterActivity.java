@@ -72,7 +72,6 @@ public class RegisterActivity extends AppCompatActivity {
         mAwesomeValidation.addValidation(this, R.id.email, android.util.Patterns.EMAIL_ADDRESS, R.string.err_email);
         mAwesomeValidation.addValidation(this, R.id.firstName, "[A-Za-z ñ]+", R.string.firstName);
         mAwesomeValidation.addValidation(this, R.id.lastName, "[A-Za-z ñ]+", R.string.lastName);
-        mAwesomeValidation.addValidation(this, R.id.address, "[A-Za-z ñ]+", R.string.err_address);
         String regexPassword = "(?=.*[a-z])(?=.*[A-Z])(?=.*[\\d])(?=.*[~`!@#\\$%\\^&\\*\\(\\)\\-_\\+=\\{\\}\\[\\]\\|\\;:\"<>,./\\?]).{8,}";
         mAwesomeValidation.addValidation(this, R.id.password, regexPassword, R.string.err_password);
         mAwesomeValidation.addValidation(this, R.id.phoneNumber, "(09|\\+639)\\d{9}", R.string.err_phone_number);
@@ -88,11 +87,15 @@ public class RegisterActivity extends AppCompatActivity {
 //        getLastLocation();
 
         btnRegister.setOnClickListener(v -> {
-            if  (mAwesomeValidation.validate()) {
+           if  (mAwesomeValidation.validate() && !address.getText().toString().isEmpty()) {
                 // Register user then proceed to dashboard
                 this.registerUser();
                 // Save it's token
-            }
+            } else {
+               if(address.getText().toString().isEmpty() || address.getText().toString().trim().length() <= 0) {
+                   address.setError("Please check your address");
+               }
+           }
         });
     }
 
@@ -107,7 +110,7 @@ public class RegisterActivity extends AppCompatActivity {
     }
 
     private void registerUser() {
-        if  (mAwesomeValidation.validate()) {
+        if  (mAwesomeValidation.validate() && !address.getText().toString().isEmpty()) {
             progressDialog = new ProgressDialog(this);
             progressDialog.setMessage("Please wait...");
             progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);

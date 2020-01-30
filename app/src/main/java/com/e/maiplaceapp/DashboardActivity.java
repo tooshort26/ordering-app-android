@@ -262,11 +262,7 @@ public class DashboardActivity extends AppCompatActivity {
 
 
     private void userFromFacebookRegister() {
-        if(SharedPref.getSharedPreferenceBoolean(this,"from_facebook_login", false)) {
-            progressDialog = new ProgressDialog(this);
-            progressDialog.setMessage("Please wait...");
-            progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-            progressDialog.show();
+        if(SharedPref.getSharedPreferenceInt(this,"customer_id", 0) == 0) {
             String first_name = SharedPref.getSharedPreferenceString(this,"firstname", null);
             String last_name = SharedPref.getSharedPreferenceString(this,"lastname", null);
 
@@ -289,9 +285,8 @@ public class DashboardActivity extends AppCompatActivity {
                         progressDialog.dismiss();
                         SharedPref.setSharedPreferenceBoolean(getApplicationContext(),"is_logged", true);
                         SharedPref.setSharedPreferenceBoolean(getApplicationContext(),"from_third_party", true);
-                        SharedPref.setSharedPreferenceInt(getApplicationContext(),"customer_id", response.body().getId());
-                        SharedPref.setSharedPreferenceBoolean(getApplicationContext(),"from_facebook_login", false);
                         Intent intent = new Intent(DashboardActivity.this, CompleteDetailsActivity.class);
+                        intent.putExtra("customer_id", response.body().getId());
                         startActivity(intent);
                     }
                 }
@@ -306,19 +301,6 @@ public class DashboardActivity extends AppCompatActivity {
     }
 
 
-    //TODO Save the categories first in DB then perform search.
-   /* private void filter(String text) {
-    ArrayList<CategoryResponse> filteredList = new ArrayList<>();
-
-        for (CategoryResponse item : categories) {
-            if (item.getName().toLowerCase().contains(text.toLowerCase()) || item.getDescription().toLowerCase().contains(text.toLowerCase())) {
-                filteredList.add(item);
-            }
-        }
-
-        categoryAdapter.filterList(filteredList);
-    }
-*/
 
    private void requestCategories() {
 
