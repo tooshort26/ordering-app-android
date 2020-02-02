@@ -34,6 +34,15 @@ public class FoodResponse {
     private Integer quantity;
 
 
+    @SerializedName("_pivot_quantity")
+    @Expose
+    private int pivotQuantity;
+
+    @SerializedName("_pivot_price")
+    @Expose
+    private int pivotPrice;
+
+
     @SerializedName("_pivot_created_at")
     @Expose
     private String created_at;
@@ -101,5 +110,21 @@ public class FoodResponse {
 
     public void setCreated_at(String created_at) {
         this.created_at = created_at;
+    }
+
+    public int getPivotQuantity() {
+        return pivotQuantity;
+    }
+
+    public void setPivotQuantity(int pivotQuantity) {
+        this.pivotQuantity = pivotQuantity;
+    }
+
+    public int getPivotPrice() {
+        return pivotPrice;
+    }
+
+    public void setPivotPrice(int pivotPrice) {
+        this.pivotPrice = pivotPrice;
     }
 }

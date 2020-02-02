@@ -1,6 +1,7 @@
 package com.e.maiplaceapp;
 
 
+import android.app.ProgressDialog;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -46,6 +47,12 @@ public class ProfileFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        ProgressDialog progressDialog = new ProgressDialog(getContext());
+        progressDialog.setMessage("Please wait...");
+        progressDialog.setCancelable(false);
+        progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        progressDialog.show();
+
 
         EditText email = view.findViewById(R.id.email);
         EditText firstName = view.findViewById(R.id.firstName);
@@ -63,6 +70,7 @@ public class ProfileFragment extends Fragment {
                 @Override
                 public void onResponse(Call<CustomerProfileResponse> call, Response<CustomerProfileResponse> response) {
                     if(response.isSuccessful()) {
+                        progressDialog.dismiss();
                         CustomerProfileResponse profileResponse = response.body();
                         String firstname = SharedPref.getSharedPreferenceString(getContext(),"firstname", null);
                         String lastname = SharedPref.getSharedPreferenceString(getContext(),"lastname", null);

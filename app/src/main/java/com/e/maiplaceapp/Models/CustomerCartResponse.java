@@ -32,6 +32,8 @@ public class CustomerCartResponse {
     @Expose
     private List<FoodResponse> foods = null;
 
+
+
     public Integer getId() {
         return id;
     }
@@ -95,4 +97,5 @@ public class CustomerCartResponse {
     public void setFoods(List<FoodResponse> foods) {
         this.foods = foods;
     }
+
 }

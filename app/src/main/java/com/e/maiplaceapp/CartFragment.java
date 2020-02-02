@@ -185,8 +185,8 @@ public class CartFragment extends Fragment implements  DeliverTypeDialog.onSelec
         recyclerView.setAdapter(foodAdapter);
 
         for(FoodResponse f : customerCartResponseList) {
-            Log.d(TAG, "TOTAL_COST" + f.getPrice());
-            totalCost += f.getPrice();
+            Log.d(TAG, "TOTAL_COST" + f.getPivotPrice());
+            totalCost += f.getPivotPrice();
         }
 
 
@@ -214,6 +214,7 @@ public class CartFragment extends Fragment implements  DeliverTypeDialog.onSelec
     */
     @Override
     public void sendQuantity(String quantity) {
+
         // make an request to API changes the quantity of an food.
         int customer_id = SharedPref.getSharedPreferenceInt(getContext(), "customer_id", 0);
         Retrofit retrofit = Service.RetrofitInstance(getContext());
@@ -223,6 +224,7 @@ public class CartFragment extends Fragment implements  DeliverTypeDialog.onSelec
         customerEditItemInCartRequest.setCustomer_id(customer_id);
         customerEditItemInCartRequest.setFood_id(foodAdapter.selectFoodId);
         customerEditItemInCartRequest.setQuantity(Integer.parseInt(quantity));
+        customerEditItemInCartRequest.setPrice(foodAdapter.selectFoodPrice);
 
 
         Call<CustomerEditItemInCartResponse> customerItemsInCart = service.update(customerEditItemInCartRequest);

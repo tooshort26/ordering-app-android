@@ -53,6 +53,7 @@ public class FoodFragment extends Fragment implements View.OnClickListener, AddT
     LinearLayout foodFragmentLayout;
     List<CategoryResponse> categories = new ArrayList<>();
     int foodId;
+    int foodPrice;
 
     private ProgressDialog progressDialog;
 
@@ -141,7 +142,8 @@ public class FoodFragment extends Fragment implements View.OnClickListener, AddT
                             }
 
 
-                            btnAddToCart.setTag(food.getId());
+                            // Set the tag of button with food id and price
+                            btnAddToCart.setTag(food.getId() + "|" + food.getPrice());
 
                             foodImageView.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
                             foodImageView.setLayoutParams(parms);
@@ -200,82 +202,17 @@ public class FoodFragment extends Fragment implements View.OnClickListener, AddT
             }
         });
 
-   /*     EditText searchField = view.findViewById(R.id.searchField);
-        this.requestFoodsByCategory(categoryId, view);
-        // After building the recyclerview we init the function of searchfield.
-        searchField.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
 
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-                filter(s.toString());
-            }
-        });
-*/
     }
 
-    //TODO Save the categories first in DB then perform search.
-    private void filter(String text) {
-//        ArrayList<FoodResponse> filteredList = new ArrayList<>();
-//
-//        for (FoodResponse item : foods) {
-//            if (item.getName().toLowerCase().contains(text.toLowerCase()) || item.getDescription().toLowerCase().contains(text.toLowerCase())) {
-//                filteredList.add(item);
-//            }
-//        }
-//
-//        foodAdapter.filterList(filteredList);
-    }
-
-    private void requestFoodsByCategory(int category_id, View view) {
-
-        /*progressDialog = new ProgressDialog(getContext());
-        progressDialog.setMessage("Please wait...");
-        progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-        progressDialog.show();
-
-        Retrofit retrofit = Service.RetrofitInstance(getContext());
-        IFood service    = retrofit.create(IFood.class);
-
-        Call<List<FoodResponse>> foodResponseCall = service.getByCategoryId(category_id);
-        foodResponseCall.enqueue(new Callback<List<FoodResponse>>() {
-            @Override
-            public void onResponse(Call<List<FoodResponse>> call, Response<List<FoodResponse>> response) {
-                if(response.isSuccessful()) {
-                    foods = response.body();
-
-                    foodAdapter = new FoodAdapter(foods, getContext());
-
-                    recyclerView = view.findViewById(R.id.food_recycler_view);
-
-                    layoutManager = new LinearLayoutManager(getContext());
-
-                    recyclerView.setLayoutManager(layoutManager);
-
-                    recyclerView.setAdapter(foodAdapter);
-                    progressDialog.dismiss();
-                }
-            }
-
-            @Override
-            public void onFailure(Call<List<FoodResponse>> call, Throwable t) {
-                Toast.makeText(getContext(), t.getMessage(), Toast.LENGTH_SHORT).show();
-            }
-        });*/
-    }
 
     // Method for clicking the Add to Cart
     @Override
     public void onClick(View v) {
-        foodId = Integer.parseInt(v.getTag().toString());
+        String[] splitted = v.getTag().toString().split("\\|");
+        foodId = Integer.parseInt(splitted[0]);
+        foodPrice = Integer.parseInt(splitted[1]);
+
         AddToCartDialog addToCartDialog = new AddToCartDialog();
         addToCartDialog.setTargetFragment(FoodFragment.this, 1);
         addToCartDialog.show(getFragmentManager(), "AddToCartDialog");
@@ -299,7 +236,7 @@ public class FoodFragment extends Fragment implements View.OnClickListener, AddT
         progressDialog.show();
 
 
-        Call<CustomerAddCartResponse> customerCartResponseCall = service.add(new CustomerAddCartRequest(customerId,foodId, orderQuantity));
+        Call<CustomerAddCartResponse> customerCartResponseCall = service.add(new CustomerAddCartRequest(customerId,foodId, orderQuantity, foodPrice));
 
         customerCartResponseCall.enqueue(new Callback<CustomerAddCartResponse>() {
             @Override

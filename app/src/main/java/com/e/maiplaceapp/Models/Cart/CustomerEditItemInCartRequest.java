@@ -4,6 +4,7 @@ public class CustomerEditItemInCartRequest {
     public int customer_id;
     public int food_id;
     public int quantity;
+    public Double price;
 
     public int getCustomer_id() {
         return customer_id;
@@ -27,5 +28,9 @@ public class CustomerEditItemInCartRequest {
 
     public void setFood_id(int food_id) {
         this.food_id = food_id;
+    }
+
+    public void setPrice(Double food_price) {
+        this.price = food_price;
     }
 }

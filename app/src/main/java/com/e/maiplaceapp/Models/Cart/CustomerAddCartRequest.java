@@ -16,11 +16,17 @@ public class CustomerAddCartRequest {
     @Expose
     private int quantity;
 
+    @SerializedName("price")
+    @Expose
+    private int price;
 
-    public CustomerAddCartRequest(int customer_id, int food_id, int quantity) {
+
+
+    public CustomerAddCartRequest(int customer_id, int food_id, int quantity, int price) {
         this.setCustomer_id(customer_id);
         this.setFood_id(food_id);
         this.setQuantity(quantity);
+        this.setPrice(price);
     }
 
     public void setCustomer_id(int customer_id) {
@@ -33,5 +39,9 @@ public class CustomerAddCartRequest {
 
     public void setQuantity(int quantity) {
         this.quantity = quantity;
+    }
+
+    public void setPrice(int price) {
+        this.price = price;
     }
 }

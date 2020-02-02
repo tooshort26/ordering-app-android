@@ -136,6 +136,8 @@ public class RegisterActivity extends AppCompatActivity {
                         Toast.makeText(RegisterActivity.this, response.body().getMessage(), Toast.LENGTH_SHORT).show();
                         SharedPref.setSharedPreferenceBoolean(getApplicationContext(),"is_logged", true);
                         SharedPref.setSharedPreferenceInt(getApplicationContext(),"customer_id", response.body().getId());
+                        SharedPref.setSharedPreferenceString(getApplicationContext(),"firstname", firstName.getText().toString());
+                        SharedPref.setSharedPreferenceString(getApplicationContext(),"lastname", lastName.getText().toString());
                         Intent intent = new Intent(RegisterActivity.this, DashboardActivity.class);
                         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NO_ANIMATION);
                         startActivity(intent);

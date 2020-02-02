@@ -44,6 +44,7 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartHolder>  {
     private CartFragment cartFragment;
     private ProgressDialog progressDialog;
     public int selectFoodId = 0;
+    public Double selectFoodPrice;
 
 
     public CartAdapter(List<FoodResponse> items, Context context, CartFragment cartFragment) {
@@ -66,8 +67,8 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartHolder>  {
         FoodResponse cartResponse = cartResponseList.get(position);
         Picasso.get().load( "https://mai-place.herokuapp.com" + cartResponse.getImage()).into(holder.foodImageView);
         holder.txtCartFoodName.setText(String.format("Name         : %s", cartResponse.getName()));
-        holder.txtCartFoodQuantity.setText(String.format("Quantity   : %d", cartResponse.getQuantity()));
-        holder.txtCartFoodPrice.setText(String.format("Price           : ₱%s0", cartResponse.getPrice()));
+        holder.txtCartFoodQuantity.setText(String.format("Quantity   : %d", cartResponse.getPivotQuantity()));
+        holder.txtCartFoodPrice.setText(String.format("Price           : ₱%s.00", cartResponse.getPivotPrice()));
 //        holder.txtCartCreatedAt.setText(String.format("Add to cart on %s", cartResponse.getCreated_at()));
 
         int customer_id = SharedPref.getSharedPreferenceInt(this.context, "customer_id", 0);
@@ -99,7 +100,7 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartHolder>  {
                         public void onResponse(Call<CustomerRemoveItemInCartResponse> call, Response<CustomerRemoveItemInCartResponse> response) {
                             if  (response.isSuccessful() && response.body().getCode() == 200) {
 //                                Toast.makeText(context, "Succesfully remove the item.", Toast.LENGTH_SHORT).show();
-                                cartFragment.updateTotalPrice(cartResponse.getPrice());
+                                cartFragment.updateTotalPrice((double) cartResponse.getPivotPrice());
                                 cartResponseList.remove(position);
                                 notifyDataSetChanged();
                                 progressDialog.dismiss();
@@ -124,10 +125,11 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartHolder>  {
 
             holder.cartItemEdit.setOnClickListener(v -> {
                 selectFoodId = cartResponse.getId();
-                SharedPref.setSharedPreferenceInt(this.context, "current_quantity", cartResponse.getQuantity());
+                selectFoodPrice = cartResponse.getPrice();
+                SharedPref.setSharedPreferenceInt(this.context, "current_quantity", cartResponse.getPivotQuantity());
                 AddToCartDialog newFragment = AddToCartDialog.newInstance();
                 newFragment.setTargetFragment(cartFragment, 5);
-                newFragment.show(((DashboardActivity) context).getSupportFragmentManager(), "AddToCartDialog");
+                newFragment.show(((DashboardActivity) context).getSupportFragmentManager(), "EditItemInCartDialog");
             });
 
         }

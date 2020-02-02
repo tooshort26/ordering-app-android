@@ -73,6 +73,13 @@
                 android:padding="10dp"
                 android:id="@+id/email" />
 
+            <TextView
+                android:text="Please include small letter, capital letter, digit , symbol and minimum of 8 characters for password"
+                android:layout_width="match_parent"
+                android:textColor="#C62828"
+                android:layout_height="wrap_content"/>
+
+
             <EditText
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -83,6 +90,7 @@
                 android:padding="10dp"
                 android:inputType="textPassword"
                 android:id="@+id/password" />
+
 
 
             <EditText

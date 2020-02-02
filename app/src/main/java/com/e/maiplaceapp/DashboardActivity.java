@@ -286,6 +286,7 @@ public class DashboardActivity extends AppCompatActivity {
                         SharedPref.setSharedPreferenceBoolean(getApplicationContext(),"is_logged", true);
                         SharedPref.setSharedPreferenceBoolean(getApplicationContext(),"from_third_party", true);
                         Intent intent = new Intent(DashboardActivity.this, CompleteDetailsActivity.class);
+                        Toast.makeText(DashboardActivity.this, String.valueOf(response.body().getId()), Toast.LENGTH_SHORT).show();
                         intent.putExtra("customer_id", response.body().getId());
                         startActivity(intent);
                     }
